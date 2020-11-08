@@ -21,7 +21,7 @@ const AuthRequestError = () => {
 
 const AuthUserLogout = () => {
     return {
-        type: "USER_LOGOUT"
+        type: "LOGOUT"
     }
 }
 
@@ -41,10 +41,4 @@ const AuthLogin = (fields) => {
     }
 }
 
-const AuthLogout = () => {
-    return (dispatch) => {
-        dispatch(AuthUserLogout());
-    }
-}
-
-export {AuthLogin, AuthLogout};
+export {AuthLogin, AuthUserLogout};

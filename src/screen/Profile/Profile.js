@@ -4,13 +4,13 @@ import { Title, IconButton, Switch, Subheading } from "react-native-paper"
 import IconMenu from "../../components/IconMenu";
 import Button from "./components/Button";
 import SwitchButton from "./components/SwitchButton";
+import { useSelector } from "react-redux";
 
 const Profile = (props) => {
-    const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
-    const onToggleSwitch = () => {
-        setIsSwitchOn(!isSwitchOn);
-    }
+    const User = useSelector((s) => s.User);
+    const { firstName, lastName, phone, photo } = User.data.data[0]; 
+
     return (
         <View style={Styles.container}>
             <IconMenu {...props}/>
@@ -21,8 +21,8 @@ const Profile = (props) => {
                         <IconButton icon="pencil" size={15}/>
                         <Text>Edit</Text>
                     </TouchableOpacity>
-                    <Title style={{fontSize: 24, fontWeight: "bold", color: "#4D4B57", marginVertical: 10}}>Robert Chandler</Title>
-                    <Subheading style={{fontSize: 16, color: "#7A7886", marginVertical: 10}}>+62 813-9387-7946</Subheading>
+                    <Title style={{fontSize: 24, fontWeight: "bold", color: "#4D4B57", marginVertical: 10}}>{`${firstName} ${lastName}`}</Title>
+                    <Subheading style={{fontSize: 16, color: "#7A7886", marginVertical: 10}}>{(phone) ? `+62 ${phone}` : "+62"}</Subheading>
                 </View>
                 <View style={{padding: 10}}>
                     <Button {...props} title="Personal Information" opacity={0.8} to="Information"/>

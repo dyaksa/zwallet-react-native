@@ -1,12 +1,16 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { View, StyleSheet, ScrollView, Dimensions} from "react-native";
 import { Title, Button, TextInput, Headline, Subheading, Text, IconButton, HelperText } from "react-native-paper";
 import { Link } from "@react-navigation/native";
+import { EMAIL_REGEXP, PASS_REGEXP } from "../utils/verify";
 import { useForm, Controller } from "react-hook-form";
-
+import { ErrorMessage } from "@hookform/error-message";
+import { RegisterFilled } from "../redux/actions/Register";
 
 const Signup = (props) => {
-    const { register, handleSubmit, control, errors } = useForm();
+    const dispatch = useDispatch();
+    const { handleSubmit, control, errors } = useForm();
     const [hidePassword, setHidePassword] = React.useState(true);
 
     const onPressHidePassword = () => {
@@ -14,10 +18,10 @@ const Signup = (props) => {
     }
 
     const onSubmit = (result) => {
-        console.log(result)
+        dispatch(RegisterFilled(result));
+        props.navigation.navigate("Pin");
     }
 
-    console.log(errors.firstName);
     return (
         <>
             <ScrollView style={Style.container} keyboardShouldPersistTaps="always">
@@ -42,42 +46,111 @@ const Signup = (props) => {
                                 error={errors.firstName}
                                 onChangeText={(value) => props.onChange(value)}  
                                 autoCapitalize="none" 
-                                placeholder="Enter your name" 
+                                placeholder="Enter your firstname" 
                                 style={Style.input} 
                                 returnKeyType="next"
                                 left={
                                     <TextInput.Icon icon="account-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
                             }/>
-                                <HelperText type="error" visible={errors.firstName}>
-
-                                </HelperText>
+                            <ErrorMessage
+                                errors={errors}
+                                name="firstName"
+                                render={({message}) => <HelperText type="error">{message}</HelperText>}
+                            />
                             </>
                         )}
                     />
-                    {/* <TextInput 
-                        onChangeText={text => setEmail(text)} 
-                        value={email} 
-                        autoCapitalize="none" 
-                        placeholder="Enter your e-mail" 
-                        style={Style.input} 
-                        returnKeyType="next"
-                        left={
-                            <TextInput.Icon icon="email-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
-                        }/>
-                    <TextInput 
-                        onChangeText={text => setPassword(text)} 
-                        value={password} 
-                        autoCapitalize="none" 
-                        placeholder="Enter your password" 
-                        style={Style.input} 
-                        returnKeyType="done" 
-                        secureTextEntry={hidePassword}
-                        left={
-                            <TextInput.Icon name="lock-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
-                        }
-                        right={
-                            <TextInput.Icon onPress={onPressHidePassword} name={hidePassword ? "eye-off-outline" : "eye-outline"} color="rgba(169, 169, 169, 0.6)"/>
-                        }/> */}
+                    <Controller
+                        defaultValue=""
+                        name="lastName"
+                        control={control}
+                        rules={{
+                            required: {value: true, message: "Lastname is required"},
+                            pattern: {value: /^[A-Za-z]+$/i,  message: "Lastname must be a letter"}
+                        }}
+                        render={(props) => (
+                            <>
+                            <TextInput 
+                                {...props}
+                                error={errors.lastName}
+                                onChangeText={(value) => props.onChange(value)}  
+                                autoCapitalize="none" 
+                                placeholder="Enter your lastname" 
+                                style={Style.input} 
+                                returnKeyType="next"
+                                left={
+                                    <TextInput.Icon icon="account-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
+                            }/>
+                            <ErrorMessage
+                                errors={errors}
+                                name="lastName"
+                                render={({message}) => <HelperText type="error">{message}</HelperText>}
+                            />
+                            </>
+                        )}
+                    />
+                    <Controller
+                        defaultValue=""
+                        name="email"
+                        control={control}
+                        rules={{
+                            required: {value: true, message: "Email is required"},
+                            pattern: {value: EMAIL_REGEXP, message: "email must be valid"}
+                        }}
+                        render={(props) => (
+                            <>
+                                <TextInput 
+                                {...props}
+                                error={errors.email}
+                                onChangeText={value => props.onChange(value)} 
+                                autoCapitalize="none" 
+                                placeholder="Enter your e-mail" 
+                                style={Style.input} 
+                                returnKeyType="next"
+                                left={
+                                    <TextInput.Icon icon="email-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
+                                }/>
+                                <ErrorMessage
+                                    errors={errors}
+                                    name="email"
+                                    render={({message}) => <HelperText type="error">{message}</HelperText>} 
+                                />
+                            </>
+                        )}
+                    />
+                    <Controller
+                        defaultValue=""
+                        name="password"
+                        control={control}
+                        rules={{
+                            required: {value: true, message: "Password is required"},
+                            minLength: {value: 8, message: "Password of at least 8 characters"},
+                            pattern: {value: PASS_REGEXP, message: "Password must be both characters and uppercase" }
+                        }}
+                        render={(props) => (
+                            <>
+                                <TextInput 
+                                    onChangeText={value => props.onChange(value)} 
+                                    error={errors.password}
+                                    autoCapitalize="none" 
+                                    placeholder="Enter your password" 
+                                    style={Style.input} 
+                                    returnKeyType="done" 
+                                    secureTextEntry={hidePassword}
+                                    left={
+                                        <TextInput.Icon name="lock-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
+                                    }
+                                    right={
+                                        <TextInput.Icon onPress={onPressHidePassword} name={hidePassword ? "eye-off-outline" : "eye-outline"} color="rgba(169, 169, 169, 0.6)"/>
+                                }/>
+                                <ErrorMessage
+                                    errors={errors}
+                                    name="password"
+                                    render={({message}) => <HelperText type="error">{message}</HelperText>}
+                                />
+                            </>
+                        )}
+                    />
                     <Button 
                         onPress={handleSubmit(onSubmit)} 
                         mode="contained" 

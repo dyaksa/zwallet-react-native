@@ -1,15 +1,12 @@
 import { combineReducers } from "redux";
 import Auth from "./Auth";
+import Register from "./Register";
+import User from "./User";
 
 const reducers = combineReducers({
     Auth,
+    Register,
+    User
 })
 
-const rootReducers = (state, action) => {
-    if(action.type == "USER_LOGOUT"){
-        state = undefined;
-    }
-    return reducers(state, action)
-}
-
-export default rootReducers;
+export default reducers;

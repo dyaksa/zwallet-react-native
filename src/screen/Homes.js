@@ -5,16 +5,20 @@ import { Dashboard, Details } from "./Home";
 import { Transfers } from "./Tranfers";
 import { Topup } from "./Topup";
 import { Profile, Password, Information, Pin, Phone } from "./Profile";
+import { useSelector } from "react-redux";
 
 
 const Drawer = createDrawerNavigator();
 
 const Homes = () => {
+    const User = useSelector((s) => s.User);
+    const {firstName, lastName} = User.data.data[0];
+
     return (
         <Drawer.Navigator
             drawerType="back"
             initialRouteName="Dashboard"
-            drawerContent={(props) => <DrawerNavigate {...props}/>}
+            drawerContent={(props) => <DrawerNavigate {...props} firstName={firstName} lastName={lastName}/>}
         >
 
             <Drawer.Screen name="Dashboard" component={Dashboard}/>

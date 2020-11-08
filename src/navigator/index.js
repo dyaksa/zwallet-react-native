@@ -1,7 +1,7 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
-import {Login, Signup, Homes } from "../screen";
+import {Login, Signup, Homes, Pin, Success } from "../screen";
 import { useSelector } from "react-redux";
 
 const MainNavigator = (props) => {
@@ -23,6 +23,12 @@ const MainNavigator = (props) => {
                     </Stack.Screen>
                     <Stack.Screen name="Signup" options={{headerShown: false}}>
                         {props => <Signup {...props} navigation={props.navigation}/>}
+                    </Stack.Screen>
+                    <Stack.Screen name="Pin" options={{headerShown: false}}>
+                        {props => <Pin {...props} navigation={props.navigation}/>}
+                    </Stack.Screen>
+                    <Stack.Screen name="Success" options={{headerShown: false}}>
+                        {props => <Success {...props} navigation={props.navigation}/>}
                     </Stack.Screen>
                     </>
                 )}

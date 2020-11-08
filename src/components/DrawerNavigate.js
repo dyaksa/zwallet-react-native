@@ -1,19 +1,27 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { View, StyleSheet, Image } from "react-native";
-import { AuthLogout } from "../redux/actions/Auth";
-import { useDispatch } from "react-redux";
+import { AuthUserLogout } from "../redux/actions/Auth";
+import { useDispatch, useSelector } from "react-redux";
 import { Drawer, Subheading, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { getuUserLogin } from "../redux/actions/User";
 
 const DrawerNavigate = (props) => {
     
     const dispatch = useDispatch();
+    const Auth = useSelector((s) => s.Auth);
+    const [name, setName] = React.useState("");
+
+    useEffect(() => {
+        dispatch(getuUserLogin(Auth.data.accessToken));
+        setName(`${props.firstName} ${props.lastName}`);
+    },[]);
+
 
     const handleLogout = () => {
-        dispatch(AuthLogout());
+        dispatch(AuthUserLogout());
     }
-
     return (
         <View style={{flex: 1}}>
             <DrawerContentScrollView {...props}>
@@ -23,7 +31,7 @@ const DrawerNavigate = (props) => {
                             <Image style={{width: 52, height: 52, borderRadius: 10, marginRight: 20}} source={{uri: "https://i.stack.imgur.com/l60Hf.png"}}/>
                         <View >
                             <Subheading style={{fontSize: 15, color: "#646464"}}>Hello</Subheading>
-                            <Text style={{fontSize: 18, color: "#646464"}}>Rober Chandler</Text>
+                            <Text style={{fontSize: 18, color: "#646464"}}>{`${name}`}</Text>
                     </View>
                 </View>
                     </View>

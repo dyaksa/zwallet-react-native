@@ -1,22 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions, SafeAreaView, FlatList, Image } from "react-native";
 import { Searchbar, Card, Headline, Subheading } from "react-native-paper";
 import IconMenu from "../../components/IconMenu";
-
-const HORIZONTALDATA = [
-    {id: "1", name: "Samuel Suhi", phone: "+62 813-8492-9994", image: "https://i.stack.imgur.com/l60Hf.png"},
-    {id: "2", name: "Samuel Suhi", phone: "+62 813-8492-9994", image: "https://i.stack.imgur.com/l60Hf.png"},
-    {id: "3", name: "Samuel Suhi", phone: "+62 813-8492-9994", image: "https://i.stack.imgur.com/l60Hf.png"},
-]
-
-const VERTICALDATA = [
-    {id: "1", name: "Samuel Suhi", phone: "+62 813-8492-9994", image: "https://i.stack.imgur.com/l60Hf.png"},
-    {id: "2", name: "Samuel Suhi", phone: "+62 813-8492-9994", image: "https://i.stack.imgur.com/l60Hf.png"},
-    {id: "3", name: "Samuel Suhi", phone: "+62 813-8492-9994", image: "https://i.stack.imgur.com/l60Hf.png"},
-    {id: "4", name: "Samuel Suhi", phone: "+62 813-8492-9994", image: "https://i.stack.imgur.com/l60Hf.png"},
-    {id: "5", name: "Samuel Suhi", phone: "+62 813-8492-9994", image: "https://i.stack.imgur.com/l60Hf.png"},
-    {id: "6", name: "Samuel Suhi", phone: "+62 813-8492-9994", image: "https://i.stack.imgur.com/l60Hf.png"}
-]
+import http from "../../http-common";
+import { useSelector } from "react-redux";
 
 const HorizontalItem = (props) => (
     <Card style={{marginHorizontal: 10, marginVertical: 5, paddingHorizontal: 5, paddingVertical: 5 ,alignContent: "center"}}>
@@ -42,14 +29,54 @@ const VerticalItem = (props) => (
 )
 
 const Transfers = (props) => {
+    const Auth = useSelector((s) => s.Auth);
+
+    const [ horizontalData, setHorizontalData] = React.useState([]);
+    const [ verticalData, setVerticalData ] = React.useState([]);
+
+    useEffect(() => {
+        const getUserDataHorizontal = async () => {
+            try{
+                const res = await http.get("/user?page=1&limit=3", {headers: {"x-access-token": Auth.data.accessToken}});
+                setHorizontalData(res.data.data);
+            }catch(err){
+                console.log(err);
+            }
+        }
+        getUserDataHorizontal();
+    },[]);
+
+    useEffect(() => {
+        const getUserDataVertical = async () => {
+            try {
+                const res = await http.get("/user", {headers: {"x-access-token": Auth.data.accessToken}});
+                setVerticalData(res.data.data);
+            }catch(err){
+                console.log(err);
+            }
+        }
+        getUserDataVertical();
+    },[]);
+
+    const handleChange = async (text) => {
+        try{
+            const res = await http.get(`/user?name=${text}`, {headers: {"x-access-token": Auth.data.accessToken}});
+            setVerticalData(res.data.data);
+        }catch(err){
+            console.log(err);
+        }
+    }
+
     const renderHorizontal = ({item}) => (
-        <HorizontalItem image={item.image} name={item.name}/>
+        <HorizontalItem image={(item.photo) ? item.photo : "https://i.stack.imgur.com/l60Hf.png"} name={`${item.firstName} ${item.lastName.substr(0,2)}..`}/>
     )
 
     return (
         <View style={Styles.container}>
             <IconMenu {...props}/>
+            {console.log(verticalData)}
             <Searchbar
+                onChangeText={handleChange}
                 placeholder="Search receiver here"
                 style={{borderRadius: 12, marginVertical: 10, elevation: 0, backgroundColor: "rgba(58, 61, 66, 0.1)"}}
             />
@@ -59,9 +86,9 @@ const Transfers = (props) => {
                     <FlatList
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
-                        data={HORIZONTALDATA}
+                        data={horizontalData}
                         renderItem={renderHorizontal}
-                        keyExtractor={(item) => item.id} 
+                        keyExtractor={(item) => item.id.toString()} 
                     />
                 </SafeAreaView>
             </View>
@@ -69,12 +96,17 @@ const Transfers = (props) => {
                 <Text style={{fontSize: 18, fontWeight:"bold", color: "#514F5B"}}>All Contact</Text>
             </View>
             <SafeAreaView style={{flex: 1}}>
+                {verticalData.length ? (
                     <FlatList
                         showsVerticalScrollIndicator={false}
-                        data={VERTICALDATA}
-                        renderItem={({item}) => <VerticalItem name={item.name} image={item.image} phone={item.phone}/>}
-                        keyExtractor={(item) => item.id}
+                        data={verticalData}
+                        renderItem={({item}) => <VerticalItem name={`${item.firstName} ${item.lastName}`} image={item.photo ? item.photo : "https://i.stack.imgur.com/l60Hf.png"} phone={item.phone}/>}
+                        keyExtractor={(item) => item.id.toString()}
                     />
+                ) : (
+                    <Text>Not Found</Text>
+                )}
+
             </SafeAreaView>
         </View>
     )

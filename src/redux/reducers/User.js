@@ -1,45 +1,42 @@
 const initialState = {
-    data:[],
     loading: false,
-    error: false
+    error: false,
+    data: []
 }
 
-const Auth = (state = initialState, action={}) => {
+const User = (state = initialState, action = {}) => {
     switch(action.type){
-        case "AUTH_REQUEST":
+        case "REQUEST_DATA":
             return {
                 ...state,
                 loading: true
             }
-        case "AUTH_SUCCESS":
+        case "SUCCESS_DATA_CATCH":
             return {
                 ...state,
                 loading: false,
-                isLogin: true,
                 data: action.payload
             }
-        case "REQUEST_ERROR":
+        case "FAILED_CATCH_DATA":
             return {
                 ...state,
-                isLogin: false,
                 loading: false,
-                error: true
+                data: []
             }
-        case "LOGOUT":
+        case "CLEAR":
             return {
                 ...state,
-                error: false,
                 loading: false,
-                isLogin: false,
-                data: [],
+                error: false,
+                data:[],
                 _persist: {
-                  rehydrated: true,
-                  version: -1
+                    rehydrated: true,
+                    version: -1
                 }
             }
-        default:
+        default: 
             return state
     }
 }
 
-export default Auth;
+export default User;
