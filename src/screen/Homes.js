@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import DrawerNavigate from "../components/DrawerNavigate";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Dashboard, Details } from "./Home";
@@ -6,19 +6,17 @@ import { Transfers } from "./Tranfers";
 import { Topup } from "./Topup";
 import { Profile, Password, Information, Pin, Phone } from "./Profile";
 import { useSelector } from "react-redux";
+import http from "../http-common";
 
 
 const Drawer = createDrawerNavigator();
 
 const Homes = () => {
-    const User = useSelector((s) => s.User);
-    const {firstName, lastName} = User.data.data[0];
-
     return (
         <Drawer.Navigator
             drawerType="back"
             initialRouteName="Dashboard"
-            drawerContent={(props) => <DrawerNavigate {...props} firstName={firstName} lastName={lastName}/>}
+            drawerContent={(props) => <DrawerNavigate {...props}/>}
         >
 
             <Drawer.Screen name="Dashboard" component={Dashboard}/>

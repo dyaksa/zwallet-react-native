@@ -1,12 +1,29 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native"
 import { Text, Appbar, Card, Title, Paragraph } from "react-native-paper";
+import { useSelector, useDispatch } from "react-redux";
+import http from "../../http-common";
 
 const Information = (props) => {
-    const [phone, setPhone] = React.useState("");
+    const dispatch = useDispatch();
+    const Auth = useSelector((s) => s.Auth);
+    const [user, setUser] = React.useState([]);
+
+    useEffect(() => {
+        const fetchUserLogin = async () => {
+            try {
+                const user = await http.get("/user/detail",{headers: {"x-access-token": Auth.data.accessToken}});
+                setUser(user.data.data[0]);
+            }catch(err){
+                console.log(err);
+            }
+        }
+        fetchUserLogin();
+    },[user]);
 
     return (
         <View style={Styles.container}>
+            {console.log(user)}
             <Appbar style={{backgroundColor: "transparent", elevation: 0}}>
                 <Appbar.BackAction onPress={() => props.navigation.goBack()}/>
                 <Appbar.Content title="Personal Information"/>
@@ -21,26 +38,26 @@ const Information = (props) => {
                     <Card style={Styles.card}>
                         <Card.Content>
                             <Text style={Styles.card__text}>First Name</Text>
-                            <Title style={Styles.card__title}>Maharandika</Title>
+                            <Title style={Styles.card__title}>{user.firstName}</Title>
                         </Card.Content>
                     </Card>
                     <Card style={Styles.card}>
                         <Card.Content>
                             <Text style={Styles.card__text}>Last Name</Text>
-                            <Title style={Styles.card__title}>Pratama</Title>
+                            <Title style={Styles.card__title}>{user.lastName}</Title>
                         </Card.Content>
                     </Card>
                     <Card style={Styles.card}>
                         <Card.Content>
                             <Text style={Styles.card__text}>Verified Email</Text>
-                            <Title style={Styles.card__title}>maharandika@gmail.com</Title>
+                            <Title style={Styles.card__title}>{user.email}</Title>
                         </Card.Content>
                     </Card>
-                    {phone ? (
+                    {user.phone ? (
                         <Card style={Styles.card}>
                             <Card.Content>
                                 <Text style={Styles.card__text}>Phone Number</Text>
-                                <Title style={Styles.card__title}>maharandika@gmail.com</Title>
+                                <Title style={Styles.card__title}>{`+62 ${user.phone}`}</Title>
                             </Card.Content>
                         </Card>
                     ) : (

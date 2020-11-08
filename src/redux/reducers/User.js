@@ -1,38 +1,38 @@
 const initialState = {
     loading: false,
     error: false,
+    success: false,
     data: []
 }
 
 const User = (state = initialState, action = {}) => {
     switch(action.type){
-        case "REQUEST_DATA":
+        case "REQUEST":
             return {
                 ...state,
                 loading: true
             }
-        case "SUCCESS_DATA_CATCH":
+        case "SUCCESS_PATCH":
             return {
                 ...state,
+                success: true,
                 loading: false,
                 data: action.payload
             }
-        case "FAILED_CATCH_DATA":
+        case "ERROR_PATCH":
             return {
                 ...state,
+                success: false,
                 loading: false,
-                data: []
+                data: action.payload
             }
-        case "CLEAR":
+        case "END_REQUEST":
             return {
                 ...state,
                 loading: false,
                 error: false,
-                data:[],
-                _persist: {
-                    rehydrated: true,
-                    version: -1
-                }
+                success: false,
+                data: []
             }
         default: 
             return state

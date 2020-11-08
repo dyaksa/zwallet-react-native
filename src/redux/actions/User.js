@@ -1,47 +1,45 @@
 import http from "../../http-common";
 
-const RequestDataCatch = () => {
+const Request = () => {
     return {
-        type: "REQUEST_DATA"
+        type: "REQUEST"
     }
 }
 
-const SuccessDataCatch = (data) => {
+const Success = (data) => {
     return {
-        type: "SUCCESS_DATA_CATCH",
+        type: "SUCCESS_PATCH",
         payload: data
     }
 }
 
-const FailedCatchData = () => {
+const Error = (data) => {
     return {
-        type: "FAILED_CATCH_DATA"
+        type: "ERROR_PATCH",
+        payload: data
     }
 }
 
-const UserClear = () => {
+const End = () => {
     return {
-        type: "CLEAR"
+        type: "END_REQUEST"
     }
 }
 
-const getuUserLogin = (token) => {
-    return async (dispatch) => {
-        try {
-            dispatch(RequestDataCatch());
-            const user = await http.get("/user/detail",{headers: {"x-access-token": token}});
-            if(user.data){
-                dispatch(SuccessDataCatch(user.data));
-            }else{
-                dispatch(FailedCatchData());
-            }
-        }catch(err){
-            dispatch(FailedCatchData());
-        }
+const updatedData = (fields, token) => {
+    return (dispatch) => {
+        dispatch(Request());
+        http.patch("/user",fields,{headers:{"x-access-token": token}})
+        .then(res => {
+            dispatch(Success(res.message))
+        }).catch(err => {
+            dispatch(Error(err.message));
+        })
+        dispatch(End());
     }
 }
+
 
 export {
-    getuUserLogin,
-    UserClear
+    updatedData,
 }

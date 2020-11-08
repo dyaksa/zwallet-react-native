@@ -2,21 +2,27 @@ import React, {useEffect} from "react";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { View, StyleSheet, Image } from "react-native";
 import { AuthUserLogout } from "../redux/actions/Auth";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Drawer, Subheading, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { getuUserLogin } from "../redux/actions/User";
+import http from "../http-common";
 
 const DrawerNavigate = (props) => {
-    
     const dispatch = useDispatch();
     const Auth = useSelector((s) => s.Auth);
-    const [name, setName] = React.useState("");
+    const [user, setUser] = React.useState([]);
 
     useEffect(() => {
-        dispatch(getuUserLogin(Auth.data.accessToken));
-        setName(`${props.firstName} ${props.lastName}`);
-    },[]);
+        const fetchData = async () => {
+            try{
+                const user = await http.get("/user/detail",{headers:{"x-access-token": Auth.data.accessToken}});
+                setUser(user.data.data[0]);
+            }catch(err){
+                console.log(err);
+            }
+        }
+        fetchData();
+    },[user]);
 
 
     const handleLogout = () => {
@@ -31,7 +37,7 @@ const DrawerNavigate = (props) => {
                             <Image style={{width: 52, height: 52, borderRadius: 10, marginRight: 20}} source={{uri: "https://i.stack.imgur.com/l60Hf.png"}}/>
                         <View >
                             <Subheading style={{fontSize: 15, color: "#646464"}}>Hello</Subheading>
-                            <Text style={{fontSize: 18, color: "#646464"}}>{`${name}`}</Text>
+                            <Text style={{fontSize: 18, color: "#646464"}}>{`${user.firstName} ${user.lastName}`}</Text>
                     </View>
                 </View>
                     </View>

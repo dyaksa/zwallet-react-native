@@ -1,18 +1,33 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {View, StyleSheet, TouchableOpacity, Image, Text, Dimensions} from "react-native";
 import { Title, IconButton, Switch, Subheading } from "react-native-paper"
 import IconMenu from "../../components/IconMenu";
 import Button from "./components/Button";
 import SwitchButton from "./components/SwitchButton";
 import { useSelector } from "react-redux";
+import http from "../../http-common";
 
 const Profile = (props) => {
 
-    const User = useSelector((s) => s.User);
-    const { firstName, lastName, phone, photo } = User.data.data[0]; 
+    const Auth = useSelector((s) => s.Auth);
+    const [user, setUser] = React.useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const user = await http.get("/user/detail",{headers:{"x-access-token": Auth.data.accessToken}});
+                setUser(user.data.data[0]);
+            }catch(err){
+                console.log(err);
+            }
+        }
+        fetchData();
+    },[user])
+
 
     return (
         <View style={Styles.container}>
+            {console.log(user)}
             <IconMenu {...props}/>
             <View style={{padding: 10}}>
                 <View style={{alignItems: "center", marginVertical: 10}}>
@@ -21,8 +36,8 @@ const Profile = (props) => {
                         <IconButton icon="pencil" size={15}/>
                         <Text>Edit</Text>
                     </TouchableOpacity>
-                    <Title style={{fontSize: 24, fontWeight: "bold", color: "#4D4B57", marginVertical: 10}}>{`${firstName} ${lastName}`}</Title>
-                    <Subheading style={{fontSize: 16, color: "#7A7886", marginVertical: 10}}>{(phone) ? `+62 ${phone}` : "+62"}</Subheading>
+                    <Title style={{fontSize: 24, fontWeight: "bold", color: "#4D4B57", marginVertical: 10}}>{`${user.firstName} ${user.lastName}`}</Title>
+                    <Subheading style={{fontSize: 16, color: "#7A7886", marginVertical: 10}}>{(user.phone) ? `+62 ${user.phone}` : "+62"}</Subheading>
                 </View>
                 <View style={{padding: 10}}>
                     <Button {...props} title="Personal Information" opacity={0.8} to="Information"/>
