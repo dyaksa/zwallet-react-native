@@ -1,0 +1,33 @@
+const initialState = {
+    data:[],
+    loading: false,
+    error: false
+}
+
+const Auth = (state = initialState, action={}) => {
+    switch(action.type){
+        case "AUTH_REQUEST":
+            return {
+                ...state,
+                loading: true
+            }
+        case "AUTH_SUCCESS":
+            return {
+                ...state,
+                loading: false,
+                isLogin: true,
+                data: action.payload
+            }
+        case "REQUEST_ERROR":
+            return {
+                ...state,
+                isLogin: false,
+                loading: false,
+                error: true
+            }
+        default:
+            return state
+    }
+}
+
+export default Auth;
