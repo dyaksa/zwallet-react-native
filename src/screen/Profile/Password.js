@@ -15,6 +15,7 @@ const Password = (props) => {
     const [visible,setVisible] = React.useState(false);
     const [submitedData, setSubmitedData] = React.useState({});
 
+
     const onSubmit = (result) => {
         const data = {
             password: result.newPassword

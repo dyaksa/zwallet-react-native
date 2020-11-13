@@ -27,7 +27,6 @@ const Profile = (props) => {
 
     return (
         <View style={Styles.container}>
-            {console.log(user)}
             <IconMenu {...props}/>
             <View style={{padding: 10}}>
                 <View style={{alignItems: "center", marginVertical: 10}}>

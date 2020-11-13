@@ -24,7 +24,7 @@ const Pin = ({navigation}) => {
 
     const handleSubmit = () => {
         dispatch(PinFilled(value));
-        const data = {...fields, pin:pin};
+        const data = {...fields, pin:pin, balance: "0"};
         dispatch(Registered(data));
         navigation.navigate("Success");
     }

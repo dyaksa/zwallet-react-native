@@ -1,19 +1,43 @@
-import React from "react";
-import { View, StyleSheet, Image, Dimensions, FlatList, SafeAreaView, TouchableOpacity} from "react-native";
-import { Text, Subheading, Headline, Button, Card } from "react-native-paper";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity} from "react-native";
+import { Text, Subheading, Headline, Button } from "react-native-paper";
 import HistoryItem from "./components/HistoryItem";
 import IconMenu from "../../components/IconMenu";
-
-const DATA = [
-    {id: "1", image: "https://i.stack.imgur.com/l60Hf.png", name: "Samuel Suhi", category: "Subscription", total: "+Rp50.000"},
-    {id: "2", image: "https://i.stack.imgur.com/l60Hf.png", name: "Samuel Suhi", category: "Subscription", total: "+Rp50.000"},
-    {id: "3", image: "https://i.stack.imgur.com/l60Hf.png", name: "Samuel Suhi", category: "Subscription", total: "+Rp50.000"},
-    {id: "4", image: "https://i.stack.imgur.com/l60Hf.png", name: "Samuel Suhi", category: "Subscription", total: "+Rp50.000"}
-]
+import { useSelector } from "react-redux";
+import http from "../../http-common";
+import { formatCurrency } from "../../utils/currency";
 
 const Dashboard = (props) => {
+    const Auth = useSelector((s) => s.Auth);
+    const [transactions, setTransactions] = useState([]);
+    const [user, setUser] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const user = await http.get("/user/detail",{headers: {"x-access-token": Auth.data.accessToken}});
+                setUser(user.data.data[0]);
+            }catch(err){
+                console.log(err);
+            }
+        }
+        fetchData();
+    },[user]);
+
+    useEffect(() => {
+        const fetchDataTransactions = async () => {
+            try{
+                const users = await http.get("/transfer",{headers: {"x-access-token": Auth.data.accessToken}});
+                setTransactions(users.data.data);
+            }catch(err){
+                console.log(err);
+            }
+        }
+        fetchDataTransactions();
+    },[transactions])
+
     const renderItem = ({item}) => (
-        <HistoryItem image={item.image} name={item.name} category={item.category} total={item.total}/>
+        <HistoryItem image={item.photo} name={`${item.firstName}.${item.lastName.substr(0,1)}`} category={`Transfer`} total={item.amount}/>
     )
 
     return (
@@ -22,8 +46,8 @@ const Dashboard = (props) => {
             <TouchableOpacity activeOpacity={0.9} onPress={() => props.navigation.navigate("Details")}>
                 <View style={{backgroundColor: "#6379F4", padding: 20, borderRadius: 20, marginVertical: 10}}>
                     <Text style={{color: "#fff", marginBottom: 10}}>Balance</Text>
-                    <Headline style={{color: "#fff", marginBottom: 10, fontWeight: "bold"}}>Rp120.000</Headline>
-                    <Subheading style={{color: "#fff"}}>+62 813-9387-7946</Subheading>
+                    <Headline style={{color: "#fff", marginBottom: 10, fontWeight: "bold"}}>{`Rp ${formatCurrency(user.balance)}`}</Headline>
+                    <Subheading style={{color: "#fff"}}>{user.phone ? `+62-${user.phone}` : `+62`}</Subheading>
                 </View>
             </TouchableOpacity>
                 <View style={{flexDirection: "row", padding: 10, justifyContent: "space-between"}}>
@@ -34,12 +58,12 @@ const Dashboard = (props) => {
                     <Text style={{fontSize: 16, fontWeight: "bold", color: "#514F5B"}}>Transaction History</Text>
                     <Text style={{fontSize: 14, color: "#6379F4"}}>See All</Text> 
                 </View>
-                <SafeAreaView style={{marginVertical: 10, flex: 1}}>
+                <SafeAreaView style={{marginVertical: 20, flex: 1}}>
                     <FlatList
                         showsVerticalScrollIndicator={false}
-                        data={DATA}
+                        data={transactions}
                         renderItem={renderItem}
-                        keyExtractor={(item) => item.id}
+                        keyExtractor={(item) => item.id.toString()}
                     />
                 </SafeAreaView>
         </View>

@@ -5,20 +5,17 @@ import { Dashboard, Details } from "./Home";
 import { Transfers } from "./Tranfers";
 import { Topup } from "./Topup";
 import { Profile, Password, Information, Pin, Phone } from "./Profile";
-import { useSelector } from "react-redux";
-import http from "../http-common";
 
 
 const Drawer = createDrawerNavigator();
 
-const Homes = () => {
+const Homes = (props) => {
     return (
         <Drawer.Navigator
             drawerType="back"
             initialRouteName="Dashboard"
             drawerContent={(props) => <DrawerNavigate {...props}/>}
         >
-
             <Drawer.Screen name="Dashboard" component={Dashboard}/>
             <Drawer.Screen name="Details" component={Details}/>
             <Drawer.Screen name="Transfers" component={Transfers}/>

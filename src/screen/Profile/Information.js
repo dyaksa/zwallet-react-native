@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from "react-redux";
 import http from "../../http-common";
 
 const Information = (props) => {
-    const dispatch = useDispatch();
     const Auth = useSelector((s) => s.Auth);
     const [user, setUser] = React.useState([]);
 
@@ -23,7 +22,6 @@ const Information = (props) => {
 
     return (
         <View style={Styles.container}>
-            {console.log(user)}
             <Appbar style={{backgroundColor: "transparent", elevation: 0}}>
                 <Appbar.BackAction onPress={() => props.navigation.goBack()}/>
                 <Appbar.Content title="Personal Information"/>
