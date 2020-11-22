@@ -1,62 +1,59 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions, SafeAreaView, FlatList, Image } from "react-native";
-import { Searchbar, Card, Headline, Subheading } from "react-native-paper";
+import  { useFocusEffect } from "@react-navigation/native";
+import { View, Text, StyleSheet, Dimensions, SafeAreaView, FlatList, Image, BackHandler, ToastAndroid } from "react-native";
+import { Searchbar } from "react-native-paper";
 import IconMenu from "../../components/IconMenu";
 import http from "../../http-common";
 import { useSelector } from "react-redux";
-
-const HorizontalItem = (props) => (
-    <Card style={{marginHorizontal: 10, marginVertical: 5, paddingHorizontal: 5, paddingVertical: 5 ,alignContent: "center"}}>
-        <Card.Cover style={{height: 56, marginVertical: 10}} source={{uri: props.image}}/>
-        <Text style={{fontSize: 14, color:"#4D4B57", fontWeight: "bold"}}>{props.name}</Text>
-    </Card>
-)
-
-const VerticalItem = (props) => (
-    <View style={{flexDirection: "row", flexDirection: "row", justifyContent: "space-between", marginVertical: 10, paddingHorizontal: 5}}>
-    <Card style={{width: "100%"}}>
-        <Card.Content style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-            <View style={{flexDirection: "row", alignItems: "center"}}>
-                <Image style={{width: 56, height: 56, borderRadius: 10, marginRight: 10}} source={{uri: props.image}}/>
-                <View>
-                    <Headline style={{fontSize: 16, color: "#4D4B57", fontWeight: "bold"}}>{props.name}</Headline>
-                    <Subheading style={{fontSize: 14, color: "#7A7886"}}>{props.phone}</Subheading>
-                </View>
-            </View>
-        </Card.Content>
-    </Card>
-</View>
-)
+import VerticalItem from "./components/VerticalItem"; 
+import HorizontalItem from "./components/HorizontalItem";
 
 const Transfers = (props) => {
     const Auth = useSelector((s) => s.Auth);
-
     const [ horizontalData, setHorizontalData] = React.useState([]);
     const [ verticalData, setVerticalData ] = React.useState([]);
+    const [exitApp, setExitApp] = React.useState(0);
 
-    useEffect(() => {
-        const getUserDataHorizontal = async () => {
-            try{
-                const res = await http.get("/user?page=1&limit=3", {headers: {"x-access-token": Auth.data.accessToken}});
-                setHorizontalData(res.data.data);
-            }catch(err){
-                console.log(err);
-            }
-        }
-        getUserDataHorizontal();
-    },[]);
+    const backAction = () => {
+        setTimeout(() => {
+            setExitApp(0);
+        },2000)
 
-    useEffect(() => {
-        const getUserDataVertical = async () => {
-            try {
-                const res = await http.get("/user", {headers: {"x-access-token": Auth.data.accessToken}});
-                setVerticalData(res.data.data);
-            }catch(err){
-                console.log(err);
-            }
+        if(exitApp === 0){
+            setExitApp(exitApp + 1);
+            ToastAndroid.show("Press Back Again, to exit.", ToastAndroid.SHORT)
+        }else if(exitApp === 1){
+            BackHandler.exitApp();
         }
-        getUserDataVertical();
-    },[]);
+        return true;
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            let unmounted = false;
+            const backHandler = BackHandler.addEventListener(
+                "hardwareBackPress",
+                backAction
+            );
+            const fetchData = async () => {
+                try {
+                    const horizontal = await http.get("/user?page=1&limit=3", {headers: {"x-access-token": Auth.data.accessToken}});
+                    const vertical = await http.get("/user", {headers: {"x-access-token": Auth.data.accessToken}});
+                    if(!unmounted){
+                        setHorizontalData(horizontal.data.data);
+                        setVerticalData(vertical.data.data);
+                    }
+                }catch(err){
+                    throw err;
+                }
+            }
+            fetchData();
+            return () => {
+                backHandler.remove();
+                unmounted = true;
+            }
+        },[exitApp])
+    )
 
     const handleChange = async (text) => {
         try{
@@ -74,7 +71,6 @@ const Transfers = (props) => {
     return (
         <View style={Styles.container}>
             <IconMenu {...props}/>
-            {console.log(verticalData)}
             <Searchbar
                 onChangeText={handleChange}
                 placeholder="Search receiver here"
@@ -100,13 +96,14 @@ const Transfers = (props) => {
                     <FlatList
                         showsVerticalScrollIndicator={false}
                         data={verticalData}
-                        renderItem={({item}) => <VerticalItem name={`${item.firstName} ${item.lastName}`} image={item.photo ? item.photo : "https://i.stack.imgur.com/l60Hf.png"} phone={item.phone}/>}
+                        renderItem={({item}) =>  <VerticalItem navigation={props.navigation} balance={item.balance}  id={item.id} name={`${item.firstName} ${item.lastName}`} image={item.photo ? item.photo : "https://i.stack.imgur.com/l60Hf.png"} phone={item.phone}/>}
                         keyExtractor={(item) => item.id.toString()}
                     />
                 ) : (
-                    <Text>Not Found</Text>
+                    <View>
+                        <Image style={{width: "100%", height: "100%"}} source={{uri: "https://cdn.dribbble.com/users/1053528/screenshots/4341024/not-found.jpg"}}/>
+                    </View>
                 )}
-
             </SafeAreaView>
         </View>
     )

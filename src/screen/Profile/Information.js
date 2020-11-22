@@ -1,24 +1,33 @@
-import React, {useEffect} from "react";
+import React from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native"
 import { Text, Appbar, Card, Title, Paragraph } from "react-native-paper";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import http from "../../http-common";
 
 const Information = (props) => {
     const Auth = useSelector((s) => s.Auth);
     const [user, setUser] = React.useState([]);
 
-    useEffect(() => {
-        const fetchUserLogin = async () => {
-            try {
-                const user = await http.get("/user/detail",{headers: {"x-access-token": Auth.data.accessToken}});
-                setUser(user.data.data[0]);
-            }catch(err){
-                console.log(err);
+    useFocusEffect(
+        React.useCallback(() => {
+            let unmounted = false;
+            const fetchUserLogin = async () => {
+                try {
+                    const user = await http.get("/user/auth/detail",{headers: {"x-access-token": Auth.data.accessToken}});
+                    if(!unmounted){
+                        setUser(user.data.data[0]);
+                    }
+                }catch(err){
+                    throw err;
+                }
             }
-        }
-        fetchUserLogin();
-    },[user]);
+            fetchUserLogin();
+            return () => {
+                unmounted = true;
+            }
+        },[user])
+    )
 
     return (
         <View style={Styles.container}>

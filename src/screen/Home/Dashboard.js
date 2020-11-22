@@ -1,43 +1,76 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity} from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { View, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity, ScrollView, ToastAndroid, BackHandler} from "react-native";
 import { Text, Subheading, Headline, Button } from "react-native-paper";
 import HistoryItem from "./components/HistoryItem";
 import IconMenu from "../../components/IconMenu";
 import { useSelector } from "react-redux";
 import http from "../../http-common";
 import { formatCurrency } from "../../utils/currency";
+import OneSignal from "react-native-onesignal";
 
 const Dashboard = (props) => {
     const Auth = useSelector((s) => s.Auth);
     const [transactions, setTransactions] = useState([]);
-    const [user, setUser] = useState([]);
+    const [balance, setBalance] = useState(null);
+    const [phone, setPhone] = useState(null);
+    const [exitApp, setExitApp] = useState(0);
+    const [loading, setLoading] = useState(true);
+
+    const backAction = () => {
+        setTimeout(() => {
+            setExitApp(0);
+        },2000);
+
+        if(exitApp === 0){
+            setExitApp(exitApp + 1);
+            ToastAndroid.show("Press Back Again, to exit.",ToastAndroid.SHORT);
+        }else if(exitApp === 1){
+            BackHandler.exitApp();
+        }
+        return true;
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            let unmounted = false;
+            const backHandler = BackHandler.addEventListener(
+                "hardwareBackPress",
+                backAction
+            );
+            const fetchData = async () => {
+                try {
+                    const user = await http.get("/user/auth/detail",{headers: {"x-access-token": Auth.data.accessToken}});
+                    const transactions = await http.get("/transfer",{headers: {"x-access-token": Auth.data.accessToken}});
+                    if(!unmounted){
+                        setPhone(user.data.data[0].phone);
+                        setBalance(user.data.data[0].balance);
+                        setTransactions(transactions.data.data);
+                    }
+                }catch(err){
+                    throw err;
+                }
+            };
+            fetchData();
+            return () => {
+                unmounted = true;
+                backHandler.remove();
+            }
+        },[balance,phone,transactions,exitApp])
+    )
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const user = await http.get("/user/detail",{headers: {"x-access-token": Auth.data.accessToken}});
-                setUser(user.data.data[0]);
-            }catch(err){
-                console.log(err);
+        OneSignal.setEmail(Auth.data.email,null,(err) => {
+            if(!err){
+                console.log("registered")
+            }else{
+                throw err;
             }
-        }
-        fetchData();
-    },[user]);
-
-    useEffect(() => {
-        const fetchDataTransactions = async () => {
-            try{
-                const users = await http.get("/transfer",{headers: {"x-access-token": Auth.data.accessToken}});
-                setTransactions(users.data.data);
-            }catch(err){
-                console.log(err);
-            }
-        }
-        fetchDataTransactions();
-    },[transactions])
+        })
+    },[]);
 
     const renderItem = ({item}) => (
-        <HistoryItem image={item.photo} name={`${item.firstName}.${item.lastName.substr(0,1)}`} category={`Transfer`} total={item.amount}/>
+        <HistoryItem receive_id={item.receive_id} image={item.photo} name={`${item.firstName}.${item.lastName.substr(0,1)}`} category={`Transfer`} total={item.amount} status={item.category}/>
     )
 
     return (
@@ -46,8 +79,8 @@ const Dashboard = (props) => {
             <TouchableOpacity activeOpacity={0.9} onPress={() => props.navigation.navigate("Details")}>
                 <View style={{backgroundColor: "#6379F4", padding: 20, borderRadius: 20, marginVertical: 10}}>
                     <Text style={{color: "#fff", marginBottom: 10}}>Balance</Text>
-                    <Headline style={{color: "#fff", marginBottom: 10, fontWeight: "bold"}}>{`Rp ${formatCurrency(user.balance)}`}</Headline>
-                    <Subheading style={{color: "#fff"}}>{user.phone ? `+62-${user.phone}` : `+62`}</Subheading>
+                    <Headline style={{color: "#fff", marginBottom: 10, fontWeight: "bold"}}>{balance ? `Rp ${formatCurrency(balance)}` : `Rp 0`}</Headline>
+                    <Subheading style={{color: "#fff"}}>{phone ? `+62-${phone}` : `+62`}</Subheading>
                 </View>
             </TouchableOpacity>
                 <View style={{flexDirection: "row", padding: 10, justifyContent: "space-between"}}>
@@ -58,14 +91,20 @@ const Dashboard = (props) => {
                     <Text style={{fontSize: 16, fontWeight: "bold", color: "#514F5B"}}>Transaction History</Text>
                     <Text style={{fontSize: 14, color: "#6379F4"}}>See All</Text> 
                 </View>
-                <SafeAreaView style={{marginVertical: 20, flex: 1}}>
+                {(transactions.length != 0) ? 
+                (<SafeAreaView style={{marginVertical: 20, flex: 1}}>
                     <FlatList
                         showsVerticalScrollIndicator={false}
                         data={transactions}
                         renderItem={renderItem}
                         keyExtractor={(item) => item.id.toString()}
                     />
-                </SafeAreaView>
+                </SafeAreaView>) : 
+                (
+                    <View>
+                        <Text>not transactions</Text>
+                    </View>
+                )}
         </View>
     )
 }

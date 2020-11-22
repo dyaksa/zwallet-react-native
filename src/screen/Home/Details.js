@@ -1,35 +1,64 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { View, StyleSheet, Dimensions, FlatList, SafeAreaView} from "react-native";
-import { Text, Subheading, Headline, Card, IconButton } from "react-native-paper";
+import { Text, Subheading, Headline, Card, IconButton, Appbar } from "react-native-paper";
+import { useSelector } from "react-redux";
 import HistoryItem  from "./components/HistoryItem";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-
-const DATA = [
-    {id: "1", image: "https://i.stack.imgur.com/l60Hf.png", name: "Samuel Suhi", category: "Subscription", total: "+Rp50.000"},
-    {id: "2", image: "https://i.stack.imgur.com/l60Hf.png", name: "Samuel Suhi", category: "Subscription", total: "+Rp50.000"},
-    {id: "3", image: "https://i.stack.imgur.com/l60Hf.png", name: "Samuel Suhi", category: "Subscription", total: "+Rp50.000"},
-    {id: "4", image: "https://i.stack.imgur.com/l60Hf.png", name: "Samuel Suhi", category: "Subscription", total: "+Rp50.000"}
-]
+import http from "../../http-common";
+import { formatCurrency } from "../../utils/currency";
 
 const Details = (props) => {
+    const Auth = useSelector((s) => s.Auth);
+    const [expense, setExpense] = React.useState(0);
+    const [income, setIncome] = React.useState(0);
+    const [transactions, setTransactions] = React.useState([]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            let unmounted = false;
+            const fetchAverage = async () => {
+                try {
+                    const expense = await http.get("/transfer/expense",{headers: {"x-access-token": Auth.data.accessToken}});
+                    const income = await http.get("/transfer/income",{headers: {"x-access-token": Auth.data.accessToken}});
+                    const transactions = await http.get("/transfer",{headers: {"x-access-token": Auth.data.accessToken}});
+                    if(!unmounted){
+                        setExpense(expense.data.data[0].average);
+                        setIncome(income.data.data[0].average);
+                        setTransactions(transactions.data.data);
+                    }
+                }catch(err){
+                    throw err;
+                }
+            }
+            fetchAverage();
+            return () => {
+                unmounted = true;
+            }
+        },[expense, income, transactions])
+    )
+
     const renderItem = ({item}) => (
-        <HistoryItem image={item.image} name={item.name} category={item.category} total={item.total}/>
+        <HistoryItem receive_id={item.receive_id} image={item.photo} name={`${item.firstName}.${item.lastName.substr(0,1)}`} category={`Transfer`} total={item.amount} status={item.category}/>
     )
 
     return (
         <>
         <View style={Styles.container}>
-            <IconButton onPress={() => props.navigation.goBack()} icon="keyboard-backspace"/>
+                <Appbar.Header style={{backgroundColor: "transparent", elevation: 0}}>
+                    <Appbar.BackAction onPress={() => props.navigation.goBack()}/>
+                    <Appbar.Content title="Transactions"/>
+                </Appbar.Header>
                 <View style={{backgroundColor: "#6379F4", padding: 20, borderRadius: 20, marginVertical: 10, flexDirection: "row", justifyContent: "space-between"}}>
                     <View style={{alignContent: "flex-start"}}>   
                         <Icon name="arrow-down" size={25} color="#4CEDB3"/>
                         <Headline style={Styles.details__headline}>Income</Headline>
-                        <Subheading style={Styles.details__subheading}>Rp2.120.000</Subheading>
+                        <Subheading style={Styles.details__subheading}>{`Rp.${formatCurrency(income)}`}</Subheading>
                     </View>
                     <View style={{alignContent: "flex-start"}}>
                         <Icon name="arrow-up" size={25} color="#FF5B37"/>
                         <Headline style={Styles.details__headline}>Expense</Headline>
-                        <Subheading style={Styles.details__subheading}>Rp1.560.000</Subheading>
+                        <Subheading style={Styles.details__subheading}>{`Rp.${formatCurrency(expense)}`}</Subheading>
                     </View>
                 </View>
                 <View style={{paddingHorizontal: 10, paddingVertical:10,flexDirection: "row", justifyContent: "space-between"}}>
@@ -38,9 +67,9 @@ const Details = (props) => {
                 <SafeAreaView style={{marginVertical: 10, flex: 1}}>
                     <FlatList
                         showsVerticalScrollIndicator={false}
-                        data={DATA}
+                        data={transactions}
                         renderItem={renderItem}
-                        keyExtractor={(item) => item.id}
+                        keyExtractor={(item) => item.id.toString()}
                     />
                 </SafeAreaView>
         </View>

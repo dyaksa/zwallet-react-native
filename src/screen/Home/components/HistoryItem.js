@@ -1,9 +1,22 @@
 import React from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {View, Image} from "react-native";
 import { Card, Headline, Subheading, Text } from "react-native-paper";
 import { formatCurrency } from "../../../utils/currency";
+import {useSelector} from "react-redux";
 
 const HistoryItem = (props) => {
+    const Auth = useSelector((s) => s.Auth);
+    const [userId, setUserId] = React.useState(0);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setUserId(Auth.data.user.id);
+            return () => {
+               setUserId(0);
+            }
+        },[userId])
+    )
     return (
         <View style={{flexDirection: "row", flexDirection: "row", justifyContent: "space-between", marginVertical: 10, paddingHorizontal: 10}}>
         <Card style={{width: "100%",  overflow: "hidden"}}>
@@ -15,7 +28,10 @@ const HistoryItem = (props) => {
                         <Subheading style={{fontSize: 14, color: "#7A7886"}}>{props.category}</Subheading>
                     </View>
                 </View>
-                <Text style={{fontWeight: "bold", fontSize: 18, color: "#1EC15F"}}>{`Rp ${formatCurrency(props.total)}`}</Text>
+                {(props.status == 1 && userId == props.receive_id) ? 
+                    (<Text style={{fontWeight: "bold", fontSize: 18, color: "#1EC15F"}}>{`+Rp ${formatCurrency(props.total)}`}</Text>) 
+                    : 
+                    (<Text style={{fontWeight: "bold", fontSize: 18, color: "#FF5B37"}}>{`-Rp ${formatCurrency(props.total)}`}</Text>)}
             </Card.Content>
         </Card>
     </View>

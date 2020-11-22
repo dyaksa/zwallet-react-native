@@ -1,4 +1,5 @@
 import React, {useEffect} from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { View, StyleSheet, Image } from "react-native";
 import { AuthUserLogout } from "../redux/actions/Auth";
@@ -15,8 +16,8 @@ const DrawerNavigate = (props) => {
     useEffect(() => {
         const fetchData = async () => {
             try{
-                const user = await http.get("/user/detail",{headers:{"x-access-token": Auth.data.accessToken}});
-                setUser(user.data.data[0]);
+                const user = await http.get("/user/auth/detail",{headers:{"x-access-token": Auth.data.accessToken}});
+                setUser(user.data.data[0])
             }catch(err){
                 console.log(err);
             }
@@ -34,7 +35,7 @@ const DrawerNavigate = (props) => {
                 <View style={Style.drawer__content}>
                     <View>
                         <View style={{paddingVertical: 25, paddingHorizontal: 10 ,flexDirection: "row"}}>
-                            <Image style={{width: 52, height: 52, borderRadius: 10, marginRight: 20}} source={{uri: "https://i.stack.imgur.com/l60Hf.png"}}/>
+                            <Image style={{width: 52, height: 52, borderRadius: 10, marginRight: 20}} source={{uri: (user.photo) ? user.photo : "https://i.stack.imgur.com/l60Hf.png"}}/>
                         <View >
                             <Subheading style={{fontSize: 15, color: "#646464"}}>Hello</Subheading>
                             <Text style={{fontSize: 18, color: "#646464"}}>{`${user.firstName} ${user.lastName}`}</Text>
