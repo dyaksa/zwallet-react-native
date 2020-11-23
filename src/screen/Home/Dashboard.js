@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { View, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity, ScrollView, ToastAndroid, BackHandler} from "react-native";
+import { View, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity, ToastAndroid, BackHandler} from "react-native";
 import { Text, Subheading, Headline, Button } from "react-native-paper";
 import HistoryItem from "./components/HistoryItem";
 import IconMenu from "../../components/IconMenu";
@@ -97,7 +97,7 @@ const Dashboard = (props) => {
                         showsVerticalScrollIndicator={false}
                         data={transactions}
                         renderItem={renderItem}
-                        keyExtractor={(item) => item.id.toString()}
+                        keyExtractor={(item) => item.t_id.toString()}
                     />
                 </SafeAreaView>) : 
                 (

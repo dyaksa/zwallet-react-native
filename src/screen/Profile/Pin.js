@@ -1,10 +1,12 @@
 import React from "react"
 import { View, StyleSheet, Dimensions, SafeAreaView } from "react-native";
 import { Text, Appbar, Button, Subheading } from "react-native-paper";
+import { useForm, Controller } from "react-hook-form";
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell} from "react-native-confirmation-code-field"
 
 const Pin = ({navigation}) => {
     const [value, setValue] = React.useState("");
+    const { handleSubmit, control, errors } = useForm();
     const ref = useBlurOnFulfill({value, cellCount: 6});
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
         value,

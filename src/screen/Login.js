@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { View, StyleSheet, ScrollView, Dimensions} from "react-native";
-import { Title, Button, TextInput, Headline, Subheading, Text } from "react-native-paper";
+import { Title, Button, TextInput, Headline, Subheading, Text, HelperText } from "react-native-paper";
 import { Link } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { AuthLogin } from "../redux/actions/Auth";
@@ -61,11 +61,15 @@ const Login = (props) => {
                             <TextInput.Icon onPress={onPressHidePassword} name={hidePassword ? "eye-off-outline" : "eye-outline"} color="rgba(169, 169, 169, 0.6)"/>
                         }/>
                     <Text style={Style.input__forgot}>Forgot Password ?</Text>
+                    <HelperText style={{textAlign: "center", paddingVertical: 10}} visible={Auth.error}>
+                        <Text style={{color: "red"}}>Something Wrong, Please check Email or Password!</Text>
+                    </HelperText>
                     <Button 
+                        loading={Auth.loading}
                         onPress={handleSubmit} 
                         mode="contained" 
                         style={Style.login__button}>
-                        <Text style={{color: "#fff"}}>Login</Text>
+                        <Text style={{color: "#fff"}}>{(Auth.loading) ? "Loading" : "Login"}</Text>
                     </Button>
                     <Text style={{textAlign: "center", fontSize: 16, fontWeight: "normal", color: "rgba(58, 61, 66, 0.8)"}}>Don’t have an account? Let’s <Link style={{color: "#6379F4"}} to="/Signup">Sign up</Link></Text>
                 </View>

@@ -69,7 +69,7 @@ const Details = (props) => {
                         showsVerticalScrollIndicator={false}
                         data={transactions}
                         renderItem={renderItem}
-                        keyExtractor={(item) => item.id.toString()}
+                        keyExtractor={(item) => item.t_id.toString()}
                     />
                 </SafeAreaView>
         </View>

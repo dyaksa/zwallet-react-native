@@ -11,8 +11,7 @@ const VerticalItem = (props) => {
                     name: props.name, 
                     phone: props.phone,
                     photo: props.image,
-                    userId: props.id, 
-                    balance: props.balance
+                    userId: props.id
                 }
             )} 
             style={{marginVertical: 10}} activeOpacity={0.9}>

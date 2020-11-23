@@ -10,22 +10,7 @@ import http from "../http-common";
 
 const DrawerNavigate = (props) => {
     const dispatch = useDispatch();
-    const Auth = useSelector((s) => s.Auth);
-    const [user, setUser] = React.useState([]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try{
-                const user = await http.get("/user/auth/detail",{headers:{"x-access-token": Auth.data.accessToken}});
-                setUser(user.data.data[0])
-            }catch(err){
-                console.log(err);
-            }
-        }
-        fetchData();
-    },[user]);
-
-
+    
     const handleLogout = () => {
         dispatch(AuthUserLogout());
     }
@@ -33,15 +18,6 @@ const DrawerNavigate = (props) => {
         <View style={{flex: 1}}>
             <DrawerContentScrollView {...props}>
                 <View style={Style.drawer__content}>
-                    <View>
-                        <View style={{paddingVertical: 25, paddingHorizontal: 10 ,flexDirection: "row"}}>
-                            <Image style={{width: 52, height: 52, borderRadius: 10, marginRight: 20}} source={{uri: (user.photo) ? user.photo : "https://i.stack.imgur.com/l60Hf.png"}}/>
-                        <View >
-                            <Subheading style={{fontSize: 15, color: "#646464"}}>Hello</Subheading>
-                            <Text style={{fontSize: 18, color: "#646464"}}>{`${user.firstName} ${user.lastName}`}</Text>
-                    </View>
-                </View>
-                    </View>
                     <Drawer.Section style={Style.bottom__drawerSection}>
                         <DrawerItem
                             icon={({color,size}) => (

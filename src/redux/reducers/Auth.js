@@ -16,6 +16,7 @@ const Auth = (state = initialState, action={}) => {
                 ...state,
                 loading: false,
                 isLogin: true,
+                error: false,
                 data: action.payload
             }
         case "REQUEST_ERROR":
