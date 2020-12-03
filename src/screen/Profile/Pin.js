@@ -1,10 +1,13 @@
 import React from "react"
 import { View, StyleSheet, Dimensions, SafeAreaView } from "react-native";
-import { Text, Appbar, Button, Subheading } from "react-native-paper";
+import { Text, Appbar, Button, Subheading, Snackbar } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell} from "react-native-confirmation-code-field"
+import { useSelector } from "react-redux";
+import http from "../../http-common";
 
 const Pin = ({navigation}) => {
+    const Auth = useSelector((s) => s.Auth);
     const [value, setValue] = React.useState("");
     const { handleSubmit, control, errors } = useForm();
     const ref = useBlurOnFulfill({value, cellCount: 6});
@@ -12,6 +15,21 @@ const Pin = ({navigation}) => {
         value,
         setValue,
     });
+    const [visible, setVisible] = React.useState(false);
+
+    const onSubmit = () => {
+        const updated = async () => {
+            try {
+                await http.patch("/user",{pin: value},{headers: {'x-access-token': Auth.data.accessToken}});
+                setVisible(!visible);
+            }catch(err){
+                throw err;
+            }
+        }
+        updated();
+    }
+
+    const onDismissSnackBar = () => setVisible(false);
 
     return (
         <View style={Styles.container}>
@@ -44,10 +62,23 @@ const Pin = ({navigation}) => {
                     />
                 </SafeAreaView>
                 <View style={{marginVertical: 10}}>
-                    <Button mode="contained" style={{padding: 10, backgroundColor: "#6379F4", borderRadius: 10}}>
+                    <Button onPress={onSubmit} mode="contained" style={{padding: 10, backgroundColor: "#6379F4", borderRadius: 10}}>
                         <Text style={{color: "#fff", fontWeight: "bold", fontSize: 16}}>Continue</Text>
                     </Button>
                 </View>
+                <Snackbar 
+                style={{backgroundColor: "#6379F4"}}
+                visible={visible}
+                onDismiss={onDismissSnackBar}
+                action={{
+                    label: "Ok",
+                    onPress: () => {
+                        setVisible(false);
+                    }
+                }}
+            >
+                Success Update Pin
+            </Snackbar>
             </View>
         </View>
     )

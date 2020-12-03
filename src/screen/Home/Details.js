@@ -1,32 +1,33 @@
 import React, { useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { View, StyleSheet, Dimensions, FlatList, SafeAreaView} from "react-native";
-import { Text, Subheading, Headline, Card, IconButton, Appbar } from "react-native-paper";
+import { Text, Subheading, Headline, Card, IconButton, Appbar, ActivityIndicator } from "react-native-paper";
 import { useSelector } from "react-redux";
 import HistoryItem  from "./components/HistoryItem";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import http from "../../http-common";
 import { formatCurrency } from "../../utils/currency";
+import TransactionHistory from "./components/TransactionHistory";
 
 const Details = (props) => {
     const Auth = useSelector((s) => s.Auth);
     const [expense, setExpense] = React.useState(0);
     const [income, setIncome] = React.useState(0);
-    const [transactions, setTransactions] = React.useState([]);
+    const [loading,setLoading] = React.useState(false);
 
     useFocusEffect(
         React.useCallback(() => {
+            setLoading(true);
             let unmounted = false;
             const fetchAverage = async () => {
                 try {
                     const expense = await http.get("/transfer/expense",{headers: {"x-access-token": Auth.data.accessToken}});
                     const income = await http.get("/transfer/income",{headers: {"x-access-token": Auth.data.accessToken}});
-                    const transactions = await http.get("/transfer",{headers: {"x-access-token": Auth.data.accessToken}});
                     if(!unmounted){
                         setExpense(expense.data.data[0].average);
                         setIncome(income.data.data[0].average);
-                        setTransactions(transactions.data.data);
-                    }
+                        setLoading(false);
+                    } 
                 }catch(err){
                     throw err;
                 }
@@ -35,11 +36,7 @@ const Details = (props) => {
             return () => {
                 unmounted = true;
             }
-        },[expense, income, transactions])
-    )
-
-    const renderItem = ({item}) => (
-        <HistoryItem receive_id={item.receive_id} image={item.photo} name={`${item.firstName}.${item.lastName.substr(0,1)}`} category={`Transfer`} total={item.amount} status={item.category}/>
+        },[expense, income, loading])
     )
 
     return (
@@ -65,12 +62,7 @@ const Details = (props) => {
                     <Text style={{fontSize: 16, fontWeight: "bold", color: "#514F5B"}}>Transaction History</Text> 
                 </View>
                 <SafeAreaView style={{marginVertical: 10, flex: 1}}>
-                    <FlatList
-                        showsVerticalScrollIndicator={false}
-                        data={transactions}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.t_id.toString()}
-                    />
+                    <TransactionHistory token={Auth.data.accessToken}/>
                 </SafeAreaView>
         </View>
         </>

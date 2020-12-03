@@ -1,21 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { View, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity, ToastAndroid, BackHandler} from "react-native";
+import { View, StyleSheet, Dimensions, SafeAreaView, TouchableOpacity, ToastAndroid, BackHandler} from "react-native";
 import { Text, Subheading, Headline, Button } from "react-native-paper";
-import HistoryItem from "./components/HistoryItem";
 import IconMenu from "../../components/IconMenu";
 import { useSelector } from "react-redux";
 import http from "../../http-common";
 import { formatCurrency } from "../../utils/currency";
 import OneSignal from "react-native-onesignal";
+import TransactionHistory from "./components/TransactionHistory";
+import socketIoClient from "socket.io-client";
 
 const Dashboard = (props) => {
     const Auth = useSelector((s) => s.Auth);
-    const [transactions, setTransactions] = useState([]);
     const [balance, setBalance] = useState(null);
     const [phone, setPhone] = useState(null);
     const [exitApp, setExitApp] = useState(0);
-    const [loading, setLoading] = useState(true);
 
     const backAction = () => {
         setTimeout(() => {
@@ -31,6 +30,17 @@ const Dashboard = (props) => {
         return true;
     }
 
+
+    const fetchUserLoginData = async () => {
+        try {
+            const user = await http.get("/user/auth/detail",{headers: {"x-access-token": Auth.data.accessToken}});
+            setPhone(user.data.data[0].phone);
+            setBalance(user.data.data[0].balance);
+        }catch(err){
+            throw err;
+        }
+    }
+
     useFocusEffect(
         React.useCallback(() => {
             let unmounted = false;
@@ -38,39 +48,23 @@ const Dashboard = (props) => {
                 "hardwareBackPress",
                 backAction
             );
-            const fetchData = async () => {
-                try {
-                    const user = await http.get("/user/auth/detail",{headers: {"x-access-token": Auth.data.accessToken}});
-                    const transactions = await http.get("/transfer",{headers: {"x-access-token": Auth.data.accessToken}});
-                    if(!unmounted){
-                        setPhone(user.data.data[0].phone);
-                        setBalance(user.data.data[0].balance);
-                        setTransactions(transactions.data.data);
-                    }
-                }catch(err){
+
+            OneSignal.setEmail(Auth.data.email,null,(err) => {
+                if(!err){
+                    console.log("registered")
+                }else{
                     throw err;
                 }
-            };
-            fetchData();
+            })
+            // const socket = socketIoClient(`http://localhost:8000?uuid=${Auth.data.user.uuid}`);
+            if(!unmounted){
+                fetchUserLoginData();
+            }
             return () => {
-                unmounted = true;
+                unmounted = false;
                 backHandler.remove();
             }
-        },[balance,phone,transactions,exitApp])
-    )
-
-    useEffect(() => {
-        OneSignal.setEmail(Auth.data.email,null,(err) => {
-            if(!err){
-                console.log("registered")
-            }else{
-                throw err;
-            }
-        })
-    },[]);
-
-    const renderItem = ({item}) => (
-        <HistoryItem receive_id={item.receive_id} image={item.photo} name={`${item.firstName}.${item.lastName.substr(0,1)}`} category={`Transfer`} total={item.amount} status={item.category}/>
+        },[exitApp])
     )
 
     return (
@@ -90,21 +84,10 @@ const Dashboard = (props) => {
                 <View style={{paddingHorizontal: 10, paddingVertical:10,flexDirection: "row", justifyContent: "space-between"}}>
                     <Text style={{fontSize: 16, fontWeight: "bold", color: "#514F5B"}}>Transaction History</Text>
                     <Text style={{fontSize: 14, color: "#6379F4"}}>See All</Text> 
-                </View>
-                {(transactions.length != 0) ? 
-                (<SafeAreaView style={{marginVertical: 20, flex: 1}}>
-                    <FlatList
-                        showsVerticalScrollIndicator={false}
-                        data={transactions}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.t_id.toString()}
-                    />
-                </SafeAreaView>) : 
-                (
-                    <View>
-                        <Text>not transactions</Text>
-                    </View>
-                )}
+                </View> 
+                <SafeAreaView style={{marginVertical: 20, flex: 1}}>
+                    <TransactionHistory token={Auth.data.accessToken}/>
+                </SafeAreaView>
         </View>
     )
 }

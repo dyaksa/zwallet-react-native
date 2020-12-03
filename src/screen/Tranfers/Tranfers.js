@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import  { useFocusEffect } from "@react-navigation/native";
 import { View, Text, StyleSheet, Dimensions, SafeAreaView, FlatList, Image, BackHandler, ToastAndroid } from "react-native";
-import { Searchbar } from "react-native-paper";
+import { Searchbar, ActivityIndicator } from "react-native-paper";
 import IconMenu from "../../components/IconMenu";
 import http from "../../http-common";
 import { useSelector } from "react-redux";
@@ -13,6 +13,8 @@ const Transfers = (props) => {
     const [ horizontalData, setHorizontalData] = React.useState([]);
     const [ verticalData, setVerticalData ] = React.useState([]);
     const [exitApp, setExitApp] = React.useState(0);
+    const [pageCurrent, setPageCurrent] = React.useState(1);
+    const [loading,setLoading] = React.useState(false);
 
     const backAction = () => {
         setTimeout(() => {
@@ -30,6 +32,7 @@ const Transfers = (props) => {
 
     useFocusEffect(
         React.useCallback(() => {
+            setLoading(true);
             let unmounted = false;
             const backHandler = BackHandler.addEventListener(
                 "hardwareBackPress",
@@ -38,16 +41,19 @@ const Transfers = (props) => {
             const fetchData = async () => {
                 try {
                     const horizontal = await http.get("/user?page=1&limit=3", {headers: {"x-access-token": Auth.data.accessToken}});
-                    const vertical = await http.get("/user", {headers: {"x-access-token": Auth.data.accessToken}});
+                    const vertical = await http.get(`/user?page${pageCurrent}`, {headers: {"x-access-token": Auth.data.accessToken}});
                     if(!unmounted){
                         setHorizontalData(horizontal.data.data);
                         setVerticalData(vertical.data.data);
+                        setLoading(false);
                     }
                 }catch(err){
                     throw err;
                 }
             }
-            fetchData();
+            if(!unmounted){
+                fetchData();
+            }
             return () => {
                 backHandler.remove();
                 unmounted = true;
@@ -67,6 +73,20 @@ const Transfers = (props) => {
     const renderHorizontal = ({item}) => (
         <HorizontalItem image={(item.photo) ? item.photo : "https://i.stack.imgur.com/l60Hf.png"} name={`${item.firstName} ${item.lastName.substr(0,2)}..`}/>
     )
+
+    const renderFooter = () => {
+        return (
+            loading ? 
+                <View style={{marginVertical: 15, alignItems: "center"}}>
+                     <ActivityIndicator color="#6379F4" size="small"/>
+                </View> : null
+        )
+    }
+
+    const handleLoadMore = () => {
+        setPageCurrent(pageCurrent + 1);
+        setLoading(true);
+    }
 
     return (
         <View style={Styles.container}>
@@ -97,7 +117,7 @@ const Transfers = (props) => {
                         showsVerticalScrollIndicator={false}
                         data={verticalData}
                         renderItem={({item}) =>  <VerticalItem navigation={props.navigation} balance={item.balance}  id={item.id} name={`${item.firstName} ${item.lastName}`} image={item.photo ? item.photo : "https://i.stack.imgur.com/l60Hf.png"} phone={item.phone}/>}
-                        keyExtractor={(item) => item.id.toString()}
+                        keyExtractor={(item,index) => index.toString()}
                     />
                 ) : (
                     <View>

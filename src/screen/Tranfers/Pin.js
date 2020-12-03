@@ -20,16 +20,17 @@ const Pin = ({navigation,route}) => {
 
     const onSubmit = () => {
         const data = {amount: amount, note: notes};
-        // const addTransfer = async () => {
-        //     try {
-        //         const results = await http.post(`/transfer/${userId}`,data,{headers: {"x-access-token": Auth.data.accessToken}});
-        //         console.log(results.data);
-        //     }catch(err){
-        //         throw err;
-        //     }
-        // }
-        // addTransfer();
-        navigation.navigate("TransferSuccess", {...route.params});
+        const addTransfer = async () => {
+            try {
+                const results = await http.post(`/transfer/${userId}`,data,{headers: {"x-access-token": Auth.data.accessToken}});
+                if(results.data.data.affectedRows == 1){
+                    navigation.navigate("TransferSuccess", {...route.params});
+                }
+            }catch(err){
+                throw err;
+            }
+        }
+        addTransfer();
     }
 
     return (

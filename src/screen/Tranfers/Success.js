@@ -1,11 +1,31 @@
 import React from "react";
-import { View, Dimensions, StyleSheet, ScrollView, Image } from "react-native";
+import { View, Dimensions, StyleSheet, ScrollView, Image, BackHandler } from "react-native";
 import { Title, Button, Text, Card, Headline, Subheading } from "react-native-paper";
 import Icons from "react-native-vector-icons/MaterialCommunityIcons";
 import { formatCurrency } from "../../utils/currency";
+import { useFocusEffect } from "@react-navigation/native";
+
 
 const Success = (props) => {
     const { amount, balance, date, name, notes, phone, photo } = props.route.params;
+
+    const backAction = () => {
+        props.navigation.navigate("Dashboard");
+        return true;
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const backHandler = BackHandler.addEventListener(
+                "hardwareBackPress",
+                backAction
+            )
+            return () => {
+                backHandler.remove();
+            }
+        },[])
+    )
+
     return (
     <ScrollView>
         <View style={Styles.container}>
