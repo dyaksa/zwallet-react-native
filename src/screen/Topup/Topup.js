@@ -49,6 +49,11 @@ const Topup = (props) => {
         <View style={Styles.container}>
             <IconMenu {...props}/>
             <View style={{padding: 10}}>
+                <Card>
+                    <Card.Content>
+
+                    </Card.Content>
+                </Card>
                 <Text style={{padding: 10, fontSize: 16, lineHeight: 27, color: "#7A7886", textAlign: "center"}}>
                     We provide you virtual account number for top up via nearest ATM.
                 </Text>
@@ -73,7 +78,7 @@ const Styles = StyleSheet.create({
         padding: 10,
         height: "100%",
         width: Dimensions.get("screen").width,
-        color: "#fff"
+        backgroundColor: "#fff"
     }
 })
 

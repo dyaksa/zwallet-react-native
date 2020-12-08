@@ -1,12 +1,20 @@
-import React, {useEffect} from "react";
+import React from "react";
 import { View, StyleSheet, ScrollView, Dimensions, SafeAreaView} from "react-native";
 import { Title, Button, Headline, Subheading, Text } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
+import { useFocusEffect } from "@react-navigation/native";
+import { BackToLogin } from "../redux/actions/Register";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const Success = (props) => {
     const dispatch = useDispatch();
-
+    const {success} = useSelector((s) => s.Register);
+    
+    useFocusEffect(
+        React.useCallback(() => {
+            return () => dispatch(BackToLogin());
+        },[success])
+    )
     const handleSubmit = () => {
         props.navigation.navigate("Login");
     }

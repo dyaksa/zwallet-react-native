@@ -26,7 +26,7 @@ const HistoryItem = (props) => {
                 <Image style={{width: 56, height: 56, borderRadius: 10, marginRight: 10}} source={{uri: (props.imagesender) ? props.imagesender : "https://i.stack.imgur.com/l60Hf.png"}}/>
                 <View>
                     <Headline style={{fontSize: 16, color: "#4D4B57", fontWeight: "bold"}}>{props.namesender}</Headline>
-                    <Subheading style={{fontSize: 14, color: "#7A7886"}}>{props.category}</Subheading>
+                    <Subheading style={{fontSize: 14, color: "#7A7886"}}>{props.status ? "Transfer" : "Topup"}</Subheading>
                 </View>
             </View>
             <Text style={{fontWeight: "bold", fontSize: 18, color: "#1EC15F"}}>{`+Rp ${formatCurrency(props.total)}`}</Text>
@@ -38,7 +38,7 @@ const HistoryItem = (props) => {
                 <Image style={{width: 56, height: 56, borderRadius: 10, marginRight: 10}} source={{uri: (props.imagereceiver) ? props.imagereceiver : "https://i.stack.imgur.com/l60Hf.png"}}/>
                 <View>
                     <Headline style={{fontSize: 16, color: "#4D4B57", fontWeight: "bold"}}>{props.namereceiver}</Headline>
-                    <Subheading style={{fontSize: 14, color: "#7A7886"}}>{props.category}</Subheading>
+                    <Subheading style={{fontSize: 14, color: "#7A7886"}}>{props.status ? "Transfer" : "Topup"}</Subheading>
                 </View>
             </View>
             <Text style={{fontWeight: "bold", fontSize: 18, color: "#FF5B37"}}>{`-Rp ${formatCurrency(props.total)}`}</Text>

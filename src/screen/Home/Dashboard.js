@@ -83,7 +83,9 @@ const Dashboard = (props) => {
                 </View>
                 <View style={{paddingHorizontal: 10, paddingVertical:10,flexDirection: "row", justifyContent: "space-between"}}>
                     <Text style={{fontSize: 16, fontWeight: "bold", color: "#514F5B"}}>Transaction History</Text>
-                    <Text style={{fontSize: 14, color: "#6379F4"}}>See All</Text> 
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate("History")}> 
+                        <Text style={{fontSize: 14, color: "#6379F4"}}>See All</Text> 
+                    </TouchableOpacity>
                 </View> 
                 <SafeAreaView style={{marginVertical: 20, flex: 1}}>
                     <TransactionHistory token={Auth.data.accessToken}/>

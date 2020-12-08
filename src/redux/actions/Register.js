@@ -6,19 +6,6 @@ const RegisterRequest = () => {
     }
 }
 
-const RegisterFilled = (data) => {
-    return {
-        type: "REGISTER_FILLED",
-        payload: data
-    }
-}
-
-const PinFilled = (pin) => {
-    return {
-        type: "PIN_FILLED",
-        payload: pin
-    }
-}
 
 const RegisterSuccess = () => {
     return {
@@ -28,13 +15,13 @@ const RegisterSuccess = () => {
 
 const RegisterError = () => {
     return {
-        type: "REGISTER_ERROR"
+        type: "REGISTER_ERROR",
     }
 }
 
-const onBack = () => {
+const BackToLogin = () => {
     return {
-        type: "USER_BACK"
+        type: "BACK_LOGIN"
     }
 }
 
@@ -51,8 +38,6 @@ const Registered = (fields) => {
 }
 
 export {
-    RegisterFilled,
-    PinFilled,
     Registered, 
-    onBack
+    BackToLogin
 }

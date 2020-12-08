@@ -80,7 +80,7 @@ const Success = (props) => {
                     </Card>
                 </View>
                 <View style={{marginVertical: 20}}>
-                    <Button onPress={() => props.navigation.navigate("Transfers")} style={{padding: 10, borderRadius: 10}} color="#6379F4" mode="contained">
+                    <Button onPress={() => props.navigation.navigate("Dashboard")} style={{padding: 10, borderRadius: 10}} color="#6379F4" mode="contained">
                         <Text style={{color: "#fff"}}>Back To Home</Text>
                     </Button>
                 </View>

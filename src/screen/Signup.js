@@ -9,7 +9,6 @@ import { ErrorMessage } from "@hookform/error-message";
 import { RegisterFilled } from "../redux/actions/Register";
 
 const Signup = (props) => {
-    const dispatch = useDispatch();
     const { handleSubmit, control, errors } = useForm();
     const [hidePassword, setHidePassword] = React.useState(true);
 
@@ -18,8 +17,8 @@ const Signup = (props) => {
     }
 
     const onSubmit = (result) => {
-        dispatch(RegisterFilled(result));
-        props.navigation.navigate("Pin");
+        const data = {...result};
+        props.navigation.navigate("Pin", data);
     }
 
     return (

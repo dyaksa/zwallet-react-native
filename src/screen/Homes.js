@@ -1,7 +1,7 @@
 import React from "react";
 import DrawerNavigate from "../components/DrawerNavigate";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { Dashboard, Details } from "./Home";
+import { Dashboard, Details, History } from "./Home";
 import { Transfers, Amount, Confirmation, Pin as TransferPin, Success } from "./Tranfers";
 import { Topup } from "./Topup";
 import { Profile, Password, Information, Pin, Phone } from "./Profile";
@@ -18,6 +18,7 @@ const Homes = (props) => {
         >
             <Drawer.Screen name="Dashboard" component={Dashboard}/>
             <Drawer.Screen name="Details" component={Details}/>
+            <Drawer.Screen name="History" component={History}/>
             <Drawer.Screen name="Transfers" component={Transfers}/>
             <Drawer.Screen name="TransferPin" component={TransferPin}/>
             <Drawer.Screen name="TransferSuccess" component={Success}/>

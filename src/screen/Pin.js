@@ -3,12 +3,14 @@ import { View, StyleSheet, ScrollView, Dimensions, SafeAreaView} from "react-nat
 import { Title, Button, Headline, Subheading, Text } from "react-native-paper";
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell} from "react-native-confirmation-code-field"
 import { useDispatch, useSelector } from "react-redux";
-import { PinFilled, Registered } from "../redux/actions/Register";
-import http from "../http-common";
+import { Registered } from "../redux/actions/Register";
+import { Controller, useForm } from "react-hook-form";
+import { PIN_REGEX } from "../utils/verify";
 
-const Pin = ({navigation}) => {
+const Pin = ({navigation, route}) => {
     const dispatch = useDispatch();
-    const {step, fields, pin} = useSelector((s) => s.Register);
+    const { handleSubmit, control, errors } = useForm();
+    const {loading, error, success} = useSelector((s) => s.Register);
     const [value, setValue] = React.useState("");
     const ref = useBlurOnFulfill({value, cellCount: 6});
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
@@ -17,16 +19,14 @@ const Pin = ({navigation}) => {
     });
 
     useEffect(() => {
-        if(!step){
-            navigation.navigate("Signup");
+        if(success){
+            navigation.navigate("Success");
         }
-    },[]);
+    },[success])
 
-    const handleSubmit = () => {
-        dispatch(PinFilled(value));
-        const data = {...fields, pin:pin, balance: "0"};
+    const onSubmit = (results) => {
+        const data = {...route.params, ...results};
         dispatch(Registered(data));
-        navigation.navigate("Success");
     }
 
     return (
@@ -41,31 +41,52 @@ const Pin = ({navigation}) => {
                         Create a PIN that’s contain 6 digits number for security purpose in Zwallet.
                     </Subheading>
                     <SafeAreaView style={{marginVertical: 15}}>
-                        <CodeField
-                            ref={ref}
-                            {...props}
-                            value={value}
-                            onChangeText={setValue}
-                            cellCount={6}
-                            rootStyle={Style.codeFieldRoot}
-                            keyboardType="number-pad"
-                            textContentType="oneTimeCode"
-                            renderCell={({index, symbol, isFocused}) => (
-                            <Text
-                                key={index}
-                                style={[Style.cell, isFocused && Style.focusCell]}
-                                onLayout={getCellOnLayoutHandler(index)}>
-                                {symbol || (isFocused ? <Cursor /> : null)}
-                            </Text>
+                        <Controller
+                            defaultValue={value}
+                            control={control}
+                            name="pin"
+                            rules={{
+                                required: {value: true, message: "pin cannot empty"},
+                                pattern: { value: PIN_REGEX, message: "the pin must be a number" },
+                                minLength: {value: 6, message: "The pin must be 6 digits long"}
+                            }}
+                            render={(props) => (
+                                <>
+                                    <CodeField
+                                    ref={ref}
+                                    {...props}
+                                    onChangeText={(text) => props.onChange(text)}
+                                    cellCount={6}
+                                    rootStyle={Style.codeFieldRoot}
+                                    keyboardType="number-pad"
+                                    textContentType="oneTimeCode"
+                                    renderCell={({index, symbol, isFocused}) => (
+                                    <Text
+                                        key={index}
+                                        style={[Style.cell, isFocused && Style.focusCell]}
+                                        onLayout={getCellOnLayoutHandler(index)}>
+                                        {symbol || (isFocused ? <Cursor /> : null)}
+                                    </Text>
+                                    )}
+                                />
+                                </>
                             )}
                         />
                     </SafeAreaView>
-                    <Button 
-                        onPress={handleSubmit} 
+                    {loading 
+                    ? (<Button 
+                        loading={true}
                         mode="contained" 
                         style={Style.login__button}>
                         <Text style={{color: "#fff"}}>Confirm</Text>
-                    </Button>
+                    </Button>) 
+                    : (
+                    <Button 
+                        onPress={handleSubmit(onSubmit)} 
+                        mode="contained" 
+                        style={Style.login__button}>
+                        <Text style={{color: "#fff"}}>Confirm</Text>
+                    </Button>)}
                 </View>
             </ScrollView>
         </>

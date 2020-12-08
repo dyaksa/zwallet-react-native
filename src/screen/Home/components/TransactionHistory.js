@@ -47,7 +47,6 @@ class TransactionHistory extends React.Component {
             namereceiver={`${item.receive_firstname}.${item.receive_lastname.substr(0,1)}`} 
             imagesender={item.sender_photo} 
             namesender={`${item.sender_firstname}.${item.sender_lastname.substr(0,1)}`} 
-            category={`Transfer`} 
             total={item.amount} 
             status={item.category}/>
         )

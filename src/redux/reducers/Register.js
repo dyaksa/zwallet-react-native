@@ -1,7 +1,6 @@
 const initialState = {
     loading: false,
     error: false,
-    step : false,
     success: false
 }
 
@@ -12,32 +11,25 @@ const Register = (state = initialState, action={}) => {
                 ...state,
                 loading: true,
             }
-        case "REGISTER_FILLED":
-            return {
-                ...state,
-                fields: action.payload,
-                step: true
-            }
-        case "PIN_FILLED":
-            return {
-                ...state,
-                pin: action.payload,
-            }
         case "REGISTER_SUCCESS":
             return {
                 ...state,
-                step: false,
-                success: true
+                success: true,
+                error: false,
+                loading: false
             }
         case "REGISTER_ERROR":
             return {
                 ...state,
                 loading: false,
-                error: true
+                error: true,
+                success: false,
             }
-        case "USER_BACK":
+        case "BACK_LOGIN":
             return {
                 ...state,
+                loading: false,
+                error: false,
                 success: false
             }
         default: 
