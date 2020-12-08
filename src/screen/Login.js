@@ -1,5 +1,5 @@
 import React, {useEffect} from "react";
-import { View, StyleSheet, ScrollView, Dimensions} from "react-native";
+import { View, StyleSheet, ScrollView, Dimensions, TouchableOpacity} from "react-native";
 import { Title, Button, TextInput, Headline, Subheading, Text, HelperText } from "react-native-paper";
 import { Link } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
@@ -60,7 +60,9 @@ const Login = (props) => {
                         right={
                             <TextInput.Icon onPress={onPressHidePassword} name={hidePassword ? "eye-off-outline" : "eye-outline"} color="rgba(169, 169, 169, 0.6)"/>
                         }/>
-                    <Text style={Style.input__forgot}>Forgot Password ?</Text>
+                        <TouchableOpacity onPress={() => props.navigation.navigate("ForgotEmailScreen")}>
+                            <Text style={Style.input__forgot}>Forgot Password ?</Text>
+                        </TouchableOpacity>
                     <HelperText style={{textAlign: "center", paddingVertical: 10}} visible={Auth.error}>
                         <Text style={{color: "red"}}>Something Wrong, Please check Email or Password!</Text>
                     </HelperText>
