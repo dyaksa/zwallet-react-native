@@ -6,12 +6,14 @@ import { AuthUserLogout } from "../redux/actions/Auth";
 import { useSelector, useDispatch } from "react-redux";
 import { Drawer, Subheading, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { SetDefault } from "../redux/actions/Profile";
 import http from "../http-common";
 
 const DrawerNavigate = (props) => {
     const dispatch = useDispatch();
     
     const handleLogout = () => {
+        dispatch(SetDefault());
         dispatch(AuthUserLogout());
     }
     return (

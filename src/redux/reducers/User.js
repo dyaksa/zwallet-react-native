@@ -2,7 +2,8 @@ const initialState = {
     loading: false,
     error: false,
     success: false,
-    data: []
+    data: [],
+    message: null
 }
 
 const User = (state = initialState, action = {}) => {
@@ -12,21 +13,23 @@ const User = (state = initialState, action = {}) => {
                 ...state,
                 loading: true
             }
-        case "SUCCESS_PATCH":
+        case "SUCCESS_REQUEST":
             return {
                 ...state,
                 success: true,
                 loading: false,
+                error: false,
                 data: action.payload
             }
-        case "ERROR_PATCH":
+        case "ERROR_REQUEST":
             return {
                 ...state,
                 success: false,
                 loading: false,
-                data: action.payload
+                error: true,
+                message: action.payload
             }
-        case "END_REQUEST":
+        case "DEFAULT":
             return {
                 ...state,
                 loading: false,

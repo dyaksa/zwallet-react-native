@@ -1,7 +1,8 @@
 const initialState = {
     loading: false,
     error: false,
-    data: []
+    data: [],
+    message: null
 }
 
 const Profile = (state = initialState, action={}) => {
@@ -15,7 +16,9 @@ const Profile = (state = initialState, action={}) => {
             return {
                 ...state,
                 loading: false,
-                data: action.payload
+                error: false,
+                data: action.payload,
+                messag: null
             }
         case 'REQUEST_PROFILE_ERROR':
             return {
@@ -25,6 +28,16 @@ const Profile = (state = initialState, action={}) => {
                 error: true,
                 message: action.payload
             }
+        case 'DEFAULT':
+            return {
+                ...state,
+                loading: false,
+                data: [],
+                error: false,
+                message: null
+            }
+        default:
+            return state;
     }
 }
 

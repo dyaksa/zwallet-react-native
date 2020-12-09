@@ -1,9 +1,13 @@
-import React, {useEffect} from "react";
+import React from "react";
 import { View, StyleSheet, ScrollView, Dimensions, TouchableOpacity} from "react-native";
 import { Title, Button, TextInput, Headline, Subheading, Text, HelperText } from "react-native-paper";
 import { Link } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { AuthLogin } from "../redux/actions/Auth";
+import FlashMessage from "../components/FlashMessage";
+import { useFocusEffect } from "@react-navigation/native"
+import { Controller, useForm } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message"
 
 const Login = (props) => {
     const dispatch = useDispatch();
@@ -11,17 +15,16 @@ const Login = (props) => {
     const [email,setEmail] = React.useState("");
     const [password, setPassword] = React.useState(""); 
     const [hidePassword, setHidePassword] = React.useState(true);
+    const [visible, setVisible] = React.useState(false);
+    const { handleSubmit, errors, control} = useForm();
 
     const onPressHidePassword = () => {
         (hidePassword) ? setHidePassword(false) : setHidePassword(true);
     }
+    
 
-    const handleSubmit = () => {
-        const fields = {
-            email: email,
-            password: password
-        }
-        dispatch(AuthLogin(fields));
+    const onSubmit = (results) => {
+        dispatch(AuthLogin(results));
     }
 
     return (
@@ -34,41 +37,72 @@ const Login = (props) => {
                     <Headline style={Style.input__title}>Login</Headline>
                     <Subheading style={Style.input__desc}>Login to your existing account to access
                         all the features in Zwallet.</Subheading>
+                    <Controller 
+                        name="email"
+                        defaultValue={email}
+                        control={control}
+                        rules={{
+                            required : {value: true, message: "Email is required"}
+                        }}
+                        render={(props) => (
+                            <>
+                            <TextInput 
+                            error={errors.email}
+                            onChangeText={(value) => props.onChange(value)} 
+                            underlineColor="rgba(169, 169, 169, 0.6)"
+                            autoCapitalize="none" 
+                            placeholder="Enter your e-mail" 
+                            style={Style.input} 
+                            returnKeyType="next"
+                            left={
+                                <TextInput.Icon icon="email-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
+                            }/>
+                            <ErrorMessage
+                            name="email"
+                            errors={errors}
+                            render={({message}) => errors.email ? <HelperText type="error">{message}</HelperText> : null}
+                            />
+                            </>
+                        )}
+                    />
+                    <Controller
+                    name="password"
+                    defaultValue={password}
+                    control={control}
+                    rules={{
+                        required: {value: true, message: "Password is required"}
+                    }}
+                    render={(props) => (
+                    <>
                     <TextInput 
-                        onChangeText={text => setEmail(text)} 
-                        underlineColor="rgba(169, 169, 169, 0.6)"
-                        value={email} 
-                        autoCapitalize="none" 
-                        placeholder="Enter your e-mail" 
-                        style={Style.input} 
-                        returnKeyType="next"
-                        left={
-                            <TextInput.Icon icon="email-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
-                        }/>
-                    <TextInput 
-                        onChangeText={text => setPassword(text)} 
-                        underlineColor="rgba(169, 169, 169, 0.6)"
-                        value={password} 
-                        autoCapitalize="none" 
-                        placeholder="Enter your password" 
-                        style={Style.input} 
-                        returnKeyType="done" 
-                        secureTextEntry={hidePassword}
-                        left={
-                            <TextInput.Icon name="lock-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
-                        }
-                        right={
-                            <TextInput.Icon onPress={onPressHidePassword} name={hidePassword ? "eye-off-outline" : "eye-outline"} color="rgba(169, 169, 169, 0.6)"/>
-                        }/>
+                    error={errors.password}
+                    onChangeText={value => props.onChange(value)} 
+                    underlineColor="rgba(169, 169, 169, 0.6)"
+                    autoCapitalize="none" 
+                    placeholder="Enter your password" 
+                    style={Style.input} 
+                    returnKeyType="done" 
+                    secureTextEntry={hidePassword}
+                    left={
+                        <TextInput.Icon name="lock-outline" color="rgba(169, 169, 169, 0.6)" style={Style.input__icon}/>
+                    }
+                    right={
+                        <TextInput.Icon onPress={onPressHidePassword} name={hidePassword ? "eye-off-outline" : "eye-outline"} color="rgba(169, 169, 169, 0.6)"/>
+                    }/>
+                    <ErrorMessage
+                    name="password"
+                    errors={errors}
+                    render={({message}) => errors.password ? <HelperText type="error">{message}</HelperText> : null}
+                    />
+                    </>
+                    )}
+                    />
                         <TouchableOpacity onPress={() => props.navigation.navigate("ForgotEmailScreen")}>
                             <Text style={Style.input__forgot}>Forgot Password ?</Text>
                         </TouchableOpacity>
-                    <HelperText style={{textAlign: "center", paddingVertical: 10}} visible={Auth.error}>
-                        <Text style={{color: "red"}}>Something Wrong, Please check Email or Password!</Text>
-                    </HelperText>
                     <Button 
                         loading={Auth.loading}
-                        onPress={handleSubmit} 
+                        onPress={handleSubmit(onSubmit)} 
                         mode="contained" 
                         style={Style.login__button}>
                         <Text style={{color: "#fff"}}>{(Auth.loading) ? "Loading" : "Login"}</Text>

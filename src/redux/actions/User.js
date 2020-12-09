@@ -8,21 +8,21 @@ const Request = () => {
 
 const Success = (data) => {
     return {
-        type: "SUCCESS_PATCH",
+        type: "SUCCESS_REQUEST",
         payload: data
     }
 }
 
 const Error = (data) => {
     return {
-        type: "ERROR_PATCH",
+        type: "ERROR_REQUEST",
         payload: data
     }
 }
 
 const End = () => {
     return {
-        type: "END_REQUEST"
+        type: "DEFAULT"
     }
 }
 

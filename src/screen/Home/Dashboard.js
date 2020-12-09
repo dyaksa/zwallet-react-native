@@ -1,16 +1,18 @@
-import React, {useState } from "react";
+import React, {useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { View, StyleSheet, Dimensions, SafeAreaView, TouchableOpacity, ToastAndroid, BackHandler} from "react-native";
 import { Text, Subheading, Headline, Button } from "react-native-paper";
 import IconMenu from "../../components/IconMenu";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import http from "../../http-common";
 import { formatCurrency } from "../../utils/currency";
 import OneSignal from "react-native-onesignal";
 import TransactionHistory from "./components/TransactionHistory";
-import socketIoClient from "socket.io-client";
+import { getProfile } from "../../redux/actions/Profile";
 
 const Dashboard = (props) => {
+    const dispatch = useDispatch();
+    const { data } = useSelector((s) => s.Profile);
     const Auth = useSelector((s) => s.Auth);
     const [balance, setBalance] = useState(null);
     const [phone, setPhone] = useState(null);
@@ -33,6 +35,7 @@ const Dashboard = (props) => {
 
     const fetchUserLoginData = async () => {
         try {
+            dispatch(getProfile(Auth.data.accessToken));
             const user = await http.get("/user/auth/detail",{headers: {"x-access-token": Auth.data.accessToken}});
             setPhone(user.data.data[0].phone);
             setBalance(user.data.data[0].balance);
@@ -41,6 +44,16 @@ const Dashboard = (props) => {
         }
     }
 
+    useEffect(() => {
+        OneSignal.setEmail(Auth.data.email,null,(err) => {
+            if(!err){
+                console.log("registered")
+            }else{
+                throw err;
+            }
+        });
+    },[])
+
     useFocusEffect(
         React.useCallback(() => {
             let unmounted = false;
@@ -48,15 +61,6 @@ const Dashboard = (props) => {
                 "hardwareBackPress",
                 backAction
             );
-
-            OneSignal.setEmail(Auth.data.email,null,(err) => {
-                if(!err){
-                    console.log("registered")
-                }else{
-                    throw err;
-                }
-            })
-            // const socket = socketIoClient(`http://localhost:8000?uuid=${Auth.data.user.uuid}`);
             if(!unmounted){
                 fetchUserLoginData();
             }

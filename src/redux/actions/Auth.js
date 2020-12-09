@@ -13,9 +13,10 @@ const AuthLoginSuccess = (data) => {
     }
 }
 
-const AuthRequestError = () => {
+const AuthRequestError = (err) => {
     return {
-        type: "REQUEST_ERROR"
+        type: "REQUEST_ERROR",
+        payload: err
     }
 }
 
@@ -32,11 +33,9 @@ const AuthLogin = (fields) => {
             const user = await http.post("/auth/login",fields);
             if(user.data){
                 dispatch(AuthLoginSuccess(user.data));
-            }else{
-                dispatch(AuthRequestError());
             }
         }catch(err){
-            dispatch(AuthRequestError());
+            dispatch(AuthRequestError(err.response.data.message));
         }
     }
 }

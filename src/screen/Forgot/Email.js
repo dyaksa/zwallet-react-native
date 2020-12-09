@@ -1,10 +1,51 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import FlashMessage from "../../components/FlashMessage";
 import { View, ScrollView, StyleSheet, Text, Dimensions } from "react-native";
-import { Title, Headline, Subheading, TextInput, Button } from "react-native-paper";
+import { Title, Headline, Subheading, TextInput, Button, HelperText} from "react-native-paper";
+import { Controller, useForm } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import { EMAIL_REGEXP } from "../../utils/verify";
+import { useSelector, useDispatch } from "react-redux";
+import { ForgotRequest } from "../../redux/actions/Forgot";
+import { useFocusEffect } from "@react-navigation/native";
 
 
 const Email = (props) => {
+    const dispatch = useDispatch();
+    const { token, loading, message, error } = useSelector((s) => s.Forgot);
+    const { handleSubmit, errors, control } = useForm();
+    const [email,setEmail] = useState("");
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        if(token){
+            props.navigation.navigate("ForgotPasswordScreen");
+        }
+    },[token])
+
+    useFocusEffect(
+        React.useCallback(() => {
+            return () => {
+                setEmail("");
+            }
+        },[email])
+    )
+
+
+    const onSubmit = (results) => {
+        console.log(results);
+        dispatch(ForgotRequest(results));
+        if(error){
+            setVisible(true);
+            setTimeout(() => {
+                setVisible(false)
+            },2000);
+        }
+    }
+
     return (
+        <>
+        {visible ? <FlashMessage message={message}/>  : null}
         <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
             <View style={styles.title__container}>
                 <Title style={styles.title}>Zwallet</Title>
@@ -15,21 +56,50 @@ const Email = (props) => {
                     Enter your Zwallet e-mail so we can send you a password reset link.
                 </Subheading>
                 <View style={{flex: 1}}>
-                    <TextInput
-                        mode="flat"
-                        style={styles.text__input}
-                        placeholder="Enter your email"
-                        returnKeyType="done"
-                        left={
-                            <TextInput.Icon name="email-outline" color="rgba(169, 169, 169, 0.6)" style={styles.input__icon}/>
-                        }
+                    <Controller
+                        defaultValue={email}
+                        control={control}
+                        name="email"
+                        rules={{
+                            required : {value: true, message: "Email can not be empty"},
+                            pattern: {value: EMAIL_REGEXP, message: "Email is not valid"},
+                        }}
+                        render={(props) => (
+                            <>
+                                <TextInput
+                                    mode="flat"
+                                    error={errors.email}
+                                    onChangeText={(value) => props.onChange(value)}
+                                    style={styles.text__input}
+                                    autoCapitalize="none"
+                                    placeholder="Enter your email"
+                                    returnKeyType="done"
+                                    left={
+                                        <TextInput.Icon name="email-outline" color="rgba(169, 169, 169, 0.6)" style={styles.input__icon}/>
+                                    }
+                                />
+                                <ErrorMessage
+                                    errors={errors}
+                                    name="email"
+                                    render={({message}) => <HelperText type="error">{message}</HelperText>}
+                                />
+                            </>
+                        )}
                     />
                 </View>
                 <View style={{flex: 1}}>
-                    <Button onPress={() => props.navigation.navigate("ForgotPasswordScreen")} style={styles.button} mode="contained">Confirm</Button>
+                    {loading 
+                    ? (<Button 
+                        loading={true}
+                        disabled={true}
+                        style={styles.button} mode="contained">Confirm</Button>) 
+                    : (<Button 
+                        onPress={handleSubmit(onSubmit)} 
+                        style={styles.button} mode="contained">Confirm</Button>)}
                 </View>
             </View>
         </ScrollView>
+        </>
     )
 }
 
@@ -70,7 +140,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#6379F4",
         padding: 10,
         borderRadius: 10
-    }
+    }, 
 })
 
 export default Email;
