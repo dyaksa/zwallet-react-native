@@ -38,6 +38,7 @@ const Password = (props) => {
     const onDismissSnackBar = () => setVisible(!visible);
 
     return (
+    <>
     <ScrollView keyboardShouldPersistTaps="always">
         <View style={Styles.container}>
             <Appbar.Header style={{backgroundColor: "transparent", elevation: 0}}>
@@ -171,6 +172,7 @@ const Password = (props) => {
                 Passoword Updated Success
         </Snackbar>
     </ScrollView>
+    </>
     )
 }
 
