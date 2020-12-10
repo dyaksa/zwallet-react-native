@@ -3,34 +3,29 @@ import { View, StyleSheet, Dimensions, SafeAreaView } from "react-native";
 import { Text, Button, Appbar, HelperText } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useFocusEffect } from "@react-navigation/native"
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell} from "react-native-confirmation-code-field";
-import http from "../../http-common";
 
 const Pin = ({navigation,route}) => {
-    const Auth = useSelector((s) => s.Auth);
-    const { amount, notes, pin, userId } = route.params;
+    const { data } = useSelector((s) => s.Profile);
     const { handleSubmit, control, errors } = useForm();
     const [value, setValue] = React.useState("");
+    const [pin, setPin] = React.useState(null);
     const ref = useBlurOnFulfill({value, cellCount: 6});
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
         value,
         setValue,
     });
 
+    useFocusEffect(
+        React.useCallback(() => {
+            setPin(data.pin);
+        },[data])
+    )
+
     const onSubmit = () => {
-        const data = {amount: amount, note: notes};
-        const addTransfer = async () => {
-            try {
-                const results = await http.post(`/transfer/${userId}`,data,{headers: {"x-access-token": Auth.data.accessToken}});
-                if(results.data.data.affectedRows == 1){
-                    navigation.navigate("TransferSuccess", {...route.params});
-                }
-            }catch(err){
-                throw err;
-            }
-        }
-        addTransfer();
+
     }
 
     return (

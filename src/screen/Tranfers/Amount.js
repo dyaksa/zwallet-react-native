@@ -1,66 +1,76 @@
 import React  from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { View, Dimensions, StyleSheet, Image, TextInput } from "react-native";
+import { View, Dimensions, StyleSheet, Image, TextInput, BackHandler } from "react-native";
 import { Text, Appbar, Card, Title, Subheading, TextInput as Input, Button, HelperText } from "react-native-paper";
 import { formatCurrency } from "../../utils/currency";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { ErrorMessage } from "@hookform/error-message";
-import http from "../../http-common";
 import { useForm, Controller } from "react-hook-form";
+import { setDefault, setField } from "../../redux/actions/Transaction";
+import _ from "lodash";
 
 const Amount = (props) => {
-    const Auth = useSelector((s) => s.Auth);
-    const {userId, name, phone, photo} = props.route.params;
+    const dispatch = useDispatch();
+    const { data } = useSelector((s) => s.Profile);
+    const { success, user, field } = useSelector((s) => s.Transaction);
     const { container } = Styles;
-    const [amount, setAmount] = React.useState(null);
-    const [currentAmount, setCurrentAmount] = React.useState(0);
-    const [currentPin, setCurrentPin] = React.useState("");
+    const [image, setImage] = React.useState(null);
+    const [name, setName] = React.useState(null);
+    const [phone, setPhone] = React.useState(null);
     const { handleSubmit, control, errors } = useForm();
+
+    const backAction = () => {
+        dispatch(setDefault());
+        return true;
+    }
 
     useFocusEffect(
         React.useCallback(() => {
             let unmounted = false;
-            const fetchUserLogin = async () => {
-                try {
-                    const response = await http.get("/user/auth/detail",{headers: {"x-access-token": Auth.data.accessToken}});
-                    if(!unmounted){
-                        setCurrentAmount(response.data.data[0].balance);
-                        setCurrentPin(response.data.data[0].pin);
-                    }
-                }catch(err){
-                    throw err;
+            if(!success){
+                return props.navigation.navigate("Transfers");
+            }
+            if(!_.isEmpty(field)){
+                return props.navigation.navigate("Confirmation");
+            }
+            if(!unmounted){
+                if(!_.isEmpty(user)){
+                    setImage(user[0].photo);
+                    setName(`${user[0].firstName} ${user[0].lastName}`);
+                    setPhone(`${user[0].phone}`);
                 }
             }
-            fetchUserLogin();
+
+            const backHandler = BackHandler.addEventListener("hardwareBackPress",backAction);
             return () => {
                 unmounted = true;
+                backHandler.remove();
             }
-        },[currentAmount])
+        },[success, user, field])
     )
 
     const onSubmit = (result) => {
-        const data = {...result, pin: currentPin, balance: currentAmount, ...props.route.params};
-        props.navigation.navigate("Confirmation",data);
+        dispatch(setField(result));
     }
 
     return (
         <View style={container}>
             <Appbar style={{backgroundColor: "transparent", elevation: 0}}>
-                <Appbar.BackAction onPress={() => props.navigation.goBack()}/>
+                <Appbar.BackAction onPress={() => dispatch(setDefault())}/>
                 <Appbar.Content title="Transfers"/>
             </Appbar>
             <View style={{padding: 10}}>
                 <Card style={{padding: 10, marginVertical: 10}}>
                     <View style={{flexDirection: "row"}}>
-                        <Image style={{width: 60, height: 60, borderRadius: 10}} source={{uri: photo }}/>
+                        <Image style={{width: 60, height: 60, borderRadius: 10}} source={{uri: image ? image :  "https://i.stack.imgur.com/l60Hf.png" }}/>
                         <Card.Content>
-                        <Title style={{color: "#4D4B57", fontWeight: "bold", fontSize:16}}>{name}</Title>
-                        <Subheading style={{color: "#7A7886", fontSize: 14}}>{`+62 ${phone}`}</Subheading>
+                        <Title style={{color: "#4D4B57", fontWeight: "bold", fontSize:16}}>{name ? name : "default"}</Title>
+                        <Subheading style={{color: "#7A7886", fontSize: 14}}>{`+62 ${phone ? phone : "0"}`}</Subheading>
                         </Card.Content>
                     </View>
                 </Card>
                 <View style={{marginVertical: 25}}>
-                <Text style={{textAlign: "center", fontWeight: "bold", color: "#7C7895", fontSize: 16}}>{`Rp ${formatCurrency(currentAmount)} Available`}</Text>
+                <Text style={{textAlign: "center", fontWeight: "bold", color: "#7C7895", fontSize: 16}}>{`Rp ${formatCurrency(data.balance)} Available`}</Text>
                 </View>
                 <View style={{marginVertical: 35, paddingHorizontal: 70}}>
                     <Controller
@@ -70,13 +80,12 @@ const Amount = (props) => {
                         rules={{
                             pattern: {value: /^(0|[1-9][0-9]*)$/, message: "Input must contain numbers"},
                             required: {value: true, message: "input must be filled"},
-                            validate: value => parseInt(value) < parseInt(currentAmount) || "Your balance is not sufficient to make the transfer"
+                            validate: value => parseInt(value) < parseInt(data.balance) || "Your balance is not sufficient to make the transfer"
                         }}
                         render={(props) => (
                             <>
                                 <TextInput
                                 onChangeText={(text) => props.onChange(text)}
-                                value={amount}
                                 placeholder="0.00"
                                 placeholderTextColor="#B5BDCC"
                                 keyboardType={'number-pad'}
