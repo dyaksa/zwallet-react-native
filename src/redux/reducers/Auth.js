@@ -2,7 +2,7 @@ const initialState = {
     data:[],
     loading: false,
     error: false,
-    message: null
+    message: null,
 }
 
 const Auth = (state = initialState, action={}) => {

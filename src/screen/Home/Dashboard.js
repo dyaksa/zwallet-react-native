@@ -9,15 +9,19 @@ import { formatCurrency } from "../../utils/currency";
 import OneSignal from "react-native-onesignal";
 import TransactionHistory from "./components/TransactionHistory";
 import { getProfile } from "../../redux/actions/Profile";
+import Pusher from "pusher-js/react-native";
+
+var pusher = new Pusher('ed92f14f09ab5705d8cd', {
+    cluster: 'ap1'
+  });
 
 const Dashboard = (props) => {
     const dispatch = useDispatch();
-    const { data } = useSelector((s) => s.Profile);
     const Auth = useSelector((s) => s.Auth);
     const [balance, setBalance] = useState(null);
     const [phone, setPhone] = useState(null);
-    const [exitApp, setExitApp] = useState(0);
-
+    const [exitApp, setExitApp] = useState(0); 
+    
     const backAction = () => {
         setTimeout(() => {
             setExitApp(0);
@@ -32,19 +36,28 @@ const Dashboard = (props) => {
         return true;
     }
 
+    const subscribe = async () => {
+        const user = await http.get("/user/auth/detail",{headers: {"x-access-token": Auth.data.accessToken}});
+        const channel = await pusher.subscribe(`${user.data.data[0].uuid}`);
+        channel.bind('my-balance', function(data) {
+            setBalance(data.balance);
+        });
+    }
+
 
     const fetchUserLoginData = async () => {
         try {
             dispatch(getProfile(Auth.data.accessToken));
             const user = await http.get("/user/auth/detail",{headers: {"x-access-token": Auth.data.accessToken}});
             setPhone(user.data.data[0].phone);
-            setBalance(user.data.data[0].balance);
+            setBalance(user.data.data[0].balance); 
         }catch(err){
             throw err;
         }
     }
 
     useEffect(() => {
+        subscribe();
         OneSignal.setEmail(Auth.data.email,null,(err) => {
             if(!err){
                 console.log("registered")
@@ -62,7 +75,8 @@ const Dashboard = (props) => {
                 backAction
             );
             if(!unmounted){
-                fetchUserLoginData();
+                fetchUserLoginData();  
+              
             }
             return () => {
                 unmounted = false;

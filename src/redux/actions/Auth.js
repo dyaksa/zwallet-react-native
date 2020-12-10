@@ -31,6 +31,7 @@ const AuthLogin = (fields) => {
         try{
             dispatch(AuthRequest());
             const user = await http.post("/auth/login",fields);
+            console.log(user.data.user.uuid);
             if(user.data){
                 dispatch(AuthLoginSuccess(user.data));
             }

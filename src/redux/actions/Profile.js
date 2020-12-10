@@ -30,7 +30,7 @@ const getProfile = (token) => {
     return async (dispatch) => {
         try {
             dispatch(Requested());
-            const user = await http.get("/user/auth/detail",{headers: {"x-access-token": token}});
+            const user = await http.get("/user/auth/detail",{headers: {"x-access-token": token}}); 
             dispatch(RequestSuccess(user.data.data[0]));
         }catch(err){
             dispatch(RequestError(err.request.data.message));
