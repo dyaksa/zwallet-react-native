@@ -24,7 +24,6 @@ const Confirmation = (props) => {
     useFocusEffect(
         React.useCallback(() => {
             let unmounted = false;
-            moment.locale('id');
             const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
             if(!success){
                 return props.navigation.navigate("Transfers");
@@ -40,7 +39,7 @@ const Confirmation = (props) => {
                 unmounted = true;
                 backHandler.remove();
             }
-        },[user])
+        },[success])
     )
 
     const handleOnPress = () => {

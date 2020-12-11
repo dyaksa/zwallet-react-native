@@ -1,6 +1,7 @@
 const initialState = {
     loading: false,
     success: false,
+    transfered: false,
     user: [],
     error: false,
     field: []
@@ -35,6 +36,22 @@ const Transaction = (state = initialState, action={}) => {
                 success: true,
                 field: action.payload
             }
+        case "TRANSFER_SUCCESS":
+            return {
+                ...state,
+                loading: false,
+                error: false,
+                success: true,
+                transfered: true,
+            }
+        case "TRANSFER_FAILED":
+            return {
+                ...state,
+                loading: false,
+                error: true,
+                success: false,
+                transfered: false
+            }
         case "SET_DEFAULT":
             return {
                 ...state,
@@ -43,6 +60,7 @@ const Transaction = (state = initialState, action={}) => {
                 user: [],
                 field: [],
                 error: false,
+                transfered: false,
                 _persist: {
                     rehydrated: true,
                     version: -1

@@ -104,16 +104,16 @@ const Amount = (props) => {
                     <Controller
                         defaultValue=""
                         control={control}
-                        name="notes"
+                        name="note"
                         rules={{
                             pattern: {value: /^[a-zA-Z0-9 ]*$/gm, message: "Must contain letters and numbers"}
                         }}
                         render={(props) => (
                         <>
                             <Input
-                                error={errors.notes}
+                                error={errors.note}
                                 onChangeText={(text) => props.onChange(text)}
-                                placeholder="Add some notes" 
+                                placeholder="Add some note" 
                                 style={{backgroundColor: "transparent"}}
                                 left={
                                     <Input.Icon icon="pencil" color="rgba(169, 169, 169, 0.6)"/>
@@ -121,7 +121,7 @@ const Amount = (props) => {
                             />
                             <ErrorMessage
                                 errors={errors}
-                                name="notes"
+                                name="note"
                                 render={({message}) => <HelperText type="error">{message}</HelperText>}
                             />
                         </>

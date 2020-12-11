@@ -32,6 +32,32 @@ const setField = (data) => {
     }
 }
 
+const transferSuccess = () => {
+    return {
+        type: "TRANSFER_SUCCESS"
+    }
+}
+
+const transferFailed = () => {
+    return {
+        type: "TRANSFER_FAILED"
+    }
+}
+
+const postTransfer = (id,field,token) => {
+    return async (dispatch) => {
+        try {
+            dispatch(requestTransaction());
+            await http.post(`/transfer/${id}`,field,{headers: {"x-access-token": token}});
+            dispatch(transferSuccess());
+        }catch(err){
+            if(err){
+                dispatch(transferFailed());
+            }
+        }
+    }
+}
+
 const fetchReceiveTransaction = (id,token) => {
     return async (dispatch) => {
         try {
@@ -47,5 +73,6 @@ const fetchReceiveTransaction = (id,token) => {
 export {
     fetchReceiveTransaction,
     setDefault,
-    setField
+    setField,
+    postTransfer
 }

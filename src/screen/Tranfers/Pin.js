@@ -4,11 +4,15 @@ import { Text, Button, Appbar, HelperText } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { useSelector, useDispatch } from "react-redux";
-import { useFocusEffect } from "@react-navigation/native"
+import { useFocusEffect } from "@react-navigation/native";
+import { postTransfer } from "../../redux/actions/Transaction";
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell} from "react-native-confirmation-code-field";
 
-const Pin = ({navigation,route}) => {
+const Pin = ({navigation}) => {
+    const dispatch = useDispatch();
+    const Auth = useSelector((s) => s.Auth);
     const { data } = useSelector((s) => s.Profile);
+    const { transfered, user, field } = useSelector((s) => s.Transaction);
     const { handleSubmit, control, errors } = useForm();
     const [value, setValue] = React.useState("");
     const [pin, setPin] = React.useState(null);
@@ -20,12 +24,15 @@ const Pin = ({navigation,route}) => {
 
     useFocusEffect(
         React.useCallback(() => {
+            if(transfered){
+                navigation.navigate("TransferSuccess");
+            }
             setPin(data.pin);
-        },[data])
+        },[transfered])
     )
 
     const onSubmit = () => {
-
+        dispatch(postTransfer())
     }
 
     return (
