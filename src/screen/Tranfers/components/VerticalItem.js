@@ -1,19 +1,22 @@
 import React from "react";
 import { Card, Headline, Subheading } from "react-native-paper";
 import { TouchableOpacity, View, Image } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import {  fetchReceiveTransaction } from "../../../redux/actions/Transaction";
+
 
 const VerticalItem = (props) => {
+    const Auth = useSelector((s) => s.Auth);
+    const dispatch = useDispatch();
+    const { id } = props
+
+    const onSubmit = () => {
+        dispatch(fetchReceiveTransaction(id,Auth.data.accessToken));
+    }
+
     return (
         <TouchableOpacity 
-            onPress={() => 
-            props.navigation.navigate("Amount",
-                {
-                    name: props.name, 
-                    phone: props.phone,
-                    photo: props.image,
-                    userId: props.id
-                }
-            )} 
+            onPress={onSubmit} 
             style={{marginVertical: 10}} activeOpacity={0.9}>
             <View style={{flexDirection: "row", flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 5}}>
                 <Card style={{width: "100%"}}>

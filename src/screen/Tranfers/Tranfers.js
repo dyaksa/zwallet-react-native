@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import  { useFocusEffect } from "@react-navigation/native";
 import { View, Text, StyleSheet, Dimensions, SafeAreaView, FlatList, Image, BackHandler, ToastAndroid } from "react-native";
 import { Searchbar, ActivityIndicator } from "react-native-paper";
@@ -10,6 +10,7 @@ import HorizontalItem from "./components/HorizontalItem";
 
 const Transfers = (props) => {
     const Auth = useSelector((s) => s.Auth);
+    const { success } = useSelector((s) => s.Transaction);
     const [ horizontalData, setHorizontalData] = React.useState([]);
     const [ verticalData, setVerticalData ] = React.useState([]);
     const [exitApp, setExitApp] = React.useState(0);
@@ -30,27 +31,30 @@ const Transfers = (props) => {
         return true;
     }
 
+    const fetchData = async () => {
+        try {
+            const horizontal = await http.get("/user?page=1&limit=3", {headers: {"x-access-token": Auth.data.accessToken}});
+            const vertical = await http.get(`/user?page${pageCurrent}`, {headers: {"x-access-token": Auth.data.accessToken}});
+            setHorizontalData(horizontal.data.data);
+            setVerticalData(vertical.data.data);
+            setLoading(false);
+        }catch(err){
+            throw err;
+        }
+    }
+
     useFocusEffect(
         React.useCallback(() => {
-            setLoading(true);
-            let unmounted = false;
+            let unmounted = false
+            if(success){
+                return props.navigation.navigate("Amount");
+            }
+            setLoading(true);;
             const backHandler = BackHandler.addEventListener(
                 "hardwareBackPress",
                 backAction
             );
-            const fetchData = async () => {
-                try {
-                    const horizontal = await http.get("/user?page=1&limit=3", {headers: {"x-access-token": Auth.data.accessToken}});
-                    const vertical = await http.get(`/user?page${pageCurrent}`, {headers: {"x-access-token": Auth.data.accessToken}});
-                    if(!unmounted){
-                        setHorizontalData(horizontal.data.data);
-                        setVerticalData(vertical.data.data);
-                        setLoading(false);
-                    }
-                }catch(err){
-                    throw err;
-                }
-            }
+
             if(!unmounted){
                 fetchData();
             }
@@ -58,7 +62,7 @@ const Transfers = (props) => {
                 backHandler.remove();
                 unmounted = true;
             }
-        },[exitApp])
+        },[exitApp, success])
     )
 
     const handleChange = async (text) => {

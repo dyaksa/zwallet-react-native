@@ -4,10 +4,15 @@ import { Title, Button, Text, Card, Headline, Subheading } from "react-native-pa
 import Icons from "react-native-vector-icons/MaterialCommunityIcons";
 import { formatCurrency } from "../../utils/currency";
 import { useFocusEffect } from "@react-navigation/native";
+import { useSelector, useDispatch } from "react-redux";
+import moment from "moment";
+import _ from "lodash";
 
 
 const Success = (props) => {
-    const { amount, balance, date, name, notes, phone, photo } = props.route.params;
+    const dispatch = useDispatch();
+    const { data } = useSelector((s) => s.Profile);
+    const { user, field } = useSelector((s) => s.Transaction);
 
     const backAction = () => {
         props.navigation.navigate("Dashboard");
@@ -16,6 +21,8 @@ const Success = (props) => {
 
     useFocusEffect(
         React.useCallback(() => {
+            console.log(data);
+            console.log(user);
             const backHandler = BackHandler.addEventListener(
                 "hardwareBackPress",
                 backAction
@@ -43,25 +50,25 @@ const Success = (props) => {
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={{color: "#7A7886", fontSize:16}}>Amount</Title>
-                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{`Rp${formatCurrency(amount)}`}</Text>
+                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{(!_.isEmpty(field)) ? `Rp${formatCurrency(field.amount)}` : null}</Text>
                         </Card.Content>
                     </Card>
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={{color: "#7A7886", fontSize:16}}>Balance Left</Title>
-                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{`Rp${formatCurrency(parseInt(balance) - parseInt(amount))}`}</Text>
+                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{(!_.isEmpty(field)) ? `Rp${formatCurrency(data.balance - field.amount)}` : null}</Text>
                         </Card.Content>
                     </Card>
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={{color: "#7A7886", fontSize:16}}>Date Time</Title>
-                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{date}</Text>
+                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{`${moment().format("MMM Do YYYY")}`}</Text>
                         </Card.Content>
                     </Card>
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={{color: "#7A7886", fontSize:16}}>Notes</Title>
-                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{notes ? notes : "-"}</Text>
+                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{(!_.isEmpty(field)) ? (field.notes == "" ? "-" : field.notes) : null}</Text>
                         </Card.Content>
                     </Card>
                 </View>
@@ -71,10 +78,10 @@ const Success = (props) => {
                 <View>
                     <Card style={{padding: 10}}>
                         <View style={{flexDirection: "row"}}>
-                            <Image source={{ uri: photo}} style={{width: 56, height: 56, borderRadius: 10}}/>
+                            <Image source={{ uri: (!_.isEmpty(user)) ? user[0].photo : "https://t4.ftcdn.net/jpg/02/22/39/63/360_F_222396357_KlP0TQwV3X1U6rJWzlLcIpJ7ZLpxGcQR.jpg"}} style={{width: 56, height: 56, borderRadius: 10}}/>
                             <View style={{marginHorizontal: 20}}>
-                                <Headline style={{fontSize: 16, fontWeight: "bold", color: "#4D4B57"}}>{name}</Headline>
-                                <Subheading style={{fontSize: 14, color: "#7A7886"}}>{`+62 ${phone}`}</Subheading>
+                                <Headline style={{fontSize: 16, fontWeight: "bold", color: "#4D4B57"}}>{(!_.isEmpty(user)) ? `${user[0].firstName} ${user[0].lastName}` : null}</Headline>
+                                <Subheading style={{fontSize: 14, color: "#7A7886"}}>{(!_.isEmpty(user)) ? `+62 ${user[0].phone}` : null}</Subheading>
                             </View>
                         </View> 
                     </Card>

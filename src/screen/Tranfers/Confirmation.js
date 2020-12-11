@@ -1,30 +1,58 @@
-import React from "react";
-import { View, Text, StyleSheet, Dimensions, Image, ScrollView } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Dimensions, Image, ScrollView, BackHandler } from "react-native";
 import { Card, Appbar, Headline,Subheading, Title, Button } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
 import { formatCurrency } from "../../utils/currency";
+import { setDefault } from "../../redux/actions/Transaction";
+import { useDispatch, useSelector } from "react-redux";
+import _ from "lodash";
 import moment from "moment";
 
 const Confirmation = (props) => {
+    const dispatch = useDispatch();
+    const { user, field, success } = useSelector((s) => s.Transaction);
+    const { data } = useSelector((s) => s.Profile);
+    const [name, setName] = useState(null);
+    const [phone, setPhone] = useState(null);
+    const [image, setImage] = useState(null);
 
-    const { amount, balance, name, notes, photo, phone } = props.route.params;
+    const backAction = () => {
+        dispatch(setDefault());
+        return true;
+    }
 
     useFocusEffect(
         React.useCallback(() => {
-            moment.locale('id');
-        },[])
+            let unmounted = false;
+            const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+            if(!success){
+                return props.navigation.navigate("Transfers");
+            }
+            if(!unmounted){
+                if(!_.isEmpty(user)){
+                    setName(`${user[0].firstName} ${user[0].lastName}`);
+                    setImage(user[0].photo);
+                    setPhone(user[0].phone);
+                }
+            }
+            return () => {
+                unmounted = true;
+                backHandler.remove();
+            }
+        },[success])
     )
 
     const handleOnPress = () => {
-        const data = {...props.route.params, date: moment().format("lll")};
-        props.navigation.navigate("TransferPin", data);
+        if(!_.isEmpty(field)){
+            props.navigation.navigate("TransferPin");
+        }
     }
     
     return (
         <ScrollView>
         <View style={Styles.container}>
             <Appbar.Header style={{backgroundColor: "transparent", elevation: 0}}>
-                <Appbar.BackAction onPress={() => props.navigation.goBack()}/>
+                <Appbar.BackAction onPress={() => dispatch(setDefault())}/>
                 <Appbar.Content title="Confirmation"/>
             </Appbar.Header>
             <View style={{padding: 10}}>
@@ -33,10 +61,10 @@ const Confirmation = (props) => {
                 </View>
                 <Card style={{padding: 10}}>
                     <View style={{flexDirection: "row"}}>
-                        <Image source={{ uri: photo}} style={{width: 56, height: 56, borderRadius: 10}}/>
+                        <Image source={{ uri: image ? image : "https://i.stack.imgur.com/l60Hf.png"}} style={{width: 56, height: 56, borderRadius: 10}}/>
                         <View style={{marginHorizontal: 20}}>
-                            <Headline style={{fontSize: 16, fontWeight: "bold", color: "#4D4B57"}}>{name}</Headline>
-                            <Subheading style={{fontSize: 14, color: "#7A7886"}}>{`+62 ${phone}`}</Subheading>
+                            <Headline style={{fontSize: 16, fontWeight: "bold", color: "#4D4B57"}}>{name ? name : "undefined"}</Headline>
+                            <Subheading style={{fontSize: 14, color: "#7A7886"}}>{`+62 ${phone ? phone : "-"}`}</Subheading>
                         </View>
                     </View> 
                 </Card>
@@ -47,25 +75,25 @@ const Confirmation = (props) => {
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={Styles.card__title}>Amount</Title>
-                            <Text style={Styles.card__text}>{`Rp${formatCurrency(amount)}`}</Text>
+                            <Text style={Styles.card__text}>{`Rp${(!_.isEmpty(field)) ? formatCurrency(field.amount) : "0"}`}</Text>
                         </Card.Content>
                     </Card>
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={Styles.card__title}>Balance Left</Title>
-                            <Text style={Styles.card__text}>{`Rp${formatCurrency(balance - amount)}`}</Text>
+                            <Text style={Styles.card__text}>{`Rp${(!_.isEmpty(field)) ? formatCurrency(data.balance - field.amount) : "0"}`}</Text>
                         </Card.Content>
                     </Card>
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={Styles.card__title}>Date Time</Title>
-                            <Text style={Styles.card__text}>{moment().format("lll")}</Text>
+                            <Text style={Styles.card__text}>{moment().format("MMM Do YYYY")}</Text>
                         </Card.Content>
                     </Card>
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={Styles.card__title}>Notes</Title>
-                            <Text style={Styles.card__text}>{(notes != "") ? notes : "-"}</Text>
+                            <Text style={Styles.card__text}>{(!_.isEmpty(field)) ? field.notes : "-"}</Text>
                         </Card.Content>
                     </Card>
                 </View>
