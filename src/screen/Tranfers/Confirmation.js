@@ -93,7 +93,7 @@ const Confirmation = (props) => {
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={Styles.card__title}>Notes</Title>
-                            <Text style={Styles.card__text}>{(!_.isEmpty(field)) ? field.notes : "-"}</Text>
+                            <Text style={Styles.card__text}>{(!_.isEmpty(field)) ? (field.note == "" ? "-" : field.note )  : "-"}</Text>
                         </Card.Content>
                     </Card>
                 </View>

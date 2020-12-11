@@ -96,8 +96,8 @@ const Dashboard = (props) => {
                 </View>
             </TouchableOpacity>
                 <View style={{flexDirection: "row", padding: 10, justifyContent: "space-between"}}>
-                    <Button style={[Styles.dashboard__button, {marginRight: 20}]} icon="arrow-up">Transfer</Button>
-                    <Button style={[Styles.dashboard__button]} icon="plus">Topup</Button>
+                    <Button onPress={() => props.navigation.navigate("Transfers")} style={[Styles.dashboard__button, {marginRight: 20}]} icon="arrow-up">Transfer</Button>
+                    <Button onPress={() => props.navigation.navigate("Topup")} style={[Styles.dashboard__button]} icon="plus">Topup</Button>
                 </View>
                 <View style={{paddingHorizontal: 10, paddingVertical:10,flexDirection: "row", justifyContent: "space-between"}}>
                     <Text style={{fontSize: 16, fontWeight: "bold", color: "#514F5B"}}>Transaction History</Text>

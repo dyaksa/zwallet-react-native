@@ -75,7 +75,7 @@ const Transfers = (props) => {
     }
 
     const renderHorizontal = ({item}) => (
-        <HorizontalItem image={(item.photo) ? item.photo : "https://i.stack.imgur.com/l60Hf.png"} name={`${item.firstName} ${item.lastName.substr(0,2)}..`}/>
+        <HorizontalItem id={item.id} image={(item.photo) ? item.photo : "https://i.stack.imgur.com/l60Hf.png"} name={`${item.firstName} ${item.lastName.substr(0,2)}..`}/>
     )
 
     const renderFooter = () => {
