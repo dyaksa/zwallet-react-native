@@ -5,6 +5,7 @@ import { Dashboard, Details, History } from "./Home";
 import { Transfers, Amount, Confirmation, Pin as TransferPin, Success } from "./Tranfers";
 import { Topup } from "./Topup";
 import { Profile, Password, Information, Pin, Phone } from "./Profile";
+import { Notification } from "./Notification";
 
 
 const Drawer = createDrawerNavigator();
@@ -16,6 +17,7 @@ const Homes = (props) => {
             initialRouteName="Dashboard"
             drawerContent={(props) => <DrawerNavigate {...props}/>}
         >
+            <Drawer.Screen name="Notification" component={Notification}/>
             <Drawer.Screen name="Dashboard" component={Dashboard}/>
             <Drawer.Screen name="Details" component={Details}/>
             <Drawer.Screen name="History" component={History}/>
