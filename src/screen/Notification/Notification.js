@@ -3,13 +3,10 @@ import { View, StyleSheet, Dimensions, FlatList, SafeAreaView } from "react-nati
 import { Appbar } from "react-native-paper";
 import NotificationCard from "./components/NotificationCard";
 import EmptyData from "../../components/EmptyData";
+import { useDispatch, useSelector } from "react-redux";
+import { useFocusEffect } from "@react-navigation/native";
+import { getNotificationData } from "../../redux/actions/Notification";
 
-const data = [
-    {
-        id: 1,
-        name: "Winandi"
-    }
-]
 
 const renderItem = ({item}) => {
     return (
@@ -19,6 +16,27 @@ const renderItem = ({item}) => {
 
 
 const Notification = (props) => {
+    const dispatch = useDispatch();
+    const Auth = useSelector((s) => s.Auth);
+    const { data } = useSelector((s) => s.Notification);
+
+    const fetchData = () => {
+        dispatch(getNotificationData(Auth.data.accessToken));
+        console.log("hello world");
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            let unmounted = false;
+            if(!unmounted){
+                fetchData();
+            }
+
+            return () => {
+                unmounted = true;
+            }
+        },[data])
+    )
     return (
         <View style={styles.container}>
             <Appbar.Header style={{backgroundColor: "transparent", elevation: 0}}>

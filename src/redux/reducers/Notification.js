@@ -28,6 +28,18 @@ const Notification = (state = initialState, action={}) => {
                 error: true, 
                 data: []
             }
+        case "SET_DEFAULT":
+            return {
+                ...state,
+                loading: false,
+                error: false,
+                success: false,
+                data: [],
+                _persist: {
+                    rehydrated: true,
+                    version: -1
+                }
+            }
         default:
             return state;
     }

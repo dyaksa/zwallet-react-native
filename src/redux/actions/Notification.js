@@ -19,15 +19,25 @@ const requestNotificationFailed = () => {
     }
 }
 
-const getNotification = (token) => {
+const setDefaultNotification = () => {
+    return {
+        type: "SET_DEFAULT"
+    }
+}
+
+const getNotificationData = (token) => {
     return async (dispatch) => {
         try {
-            // dispatch(requestNotification());
+            dispatch(requestNotification());
             const notification = await http.get("/transfer/today",{headers: {"x-access-token": token}});
-            console.log(notification)
-
+            dispatch(requestNotificationSuccess(notification.data.data));
         }catch(err){
             dispatch(requestNotificationFailed());
         }
     }
+}
+
+export {
+    getNotificationData,
+    setDefaultNotification,
 }

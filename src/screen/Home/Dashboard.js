@@ -76,7 +76,6 @@ const Dashboard = (props) => {
             );
             if(!unmounted){
                 fetchUserLoginData();  
-              
             }
             return () => {
                 unmounted = false;

@@ -4,13 +4,15 @@ import Register from "./Register";
 import Forgot from "./Forgot";
 import Profile from "./Profile";
 import Transaction from "./Transaction";
+import Notification from "./Notification";
 
 const reducers = combineReducers({
     Auth,
     Register,
     Forgot,
     Profile,
-    Transaction
+    Transaction,
+    Notification
 })
 
 export default reducers;
