@@ -5,6 +5,7 @@ import Icons from "react-native-vector-icons/MaterialCommunityIcons";
 import { formatCurrency } from "../../utils/currency";
 import { useFocusEffect } from "@react-navigation/native";
 import { useSelector, useDispatch } from "react-redux";
+import { setDefault } from "../../redux/actions/Transaction";
 import moment from "moment";
 import _ from "lodash";
 
@@ -29,6 +30,7 @@ const Success = (props) => {
             )
             return () => {
                 backHandler.remove();
+                dispatch(setDefault());
             }
         },[])
     )
@@ -68,7 +70,7 @@ const Success = (props) => {
                     <Card style={{marginVertical: 10}}>
                         <Card.Content>
                             <Title style={{color: "#7A7886", fontSize:16}}>Notes</Title>
-                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{(!_.isEmpty(field)) ? (field.notes == "" ? "-" : field.notes) : null}</Text>
+                            <Text style={{color: "#514F5B", fontSize: 22, fontWeight: "bold"}}>{(!_.isEmpty(field)) ? (field.note == "" ? "-" : field.note) : null}</Text>
                         </Card.Content>
                     </Card>
                 </View>
