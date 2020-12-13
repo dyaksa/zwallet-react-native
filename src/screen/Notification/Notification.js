@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { View, StyleSheet, Dimensions, FlatList, SafeAreaView } from "react-native";
 import { Appbar } from "react-native-paper";
 import NotificationCard from "./components/NotificationCard";
@@ -10,7 +10,7 @@ import { getNotificationData } from "../../redux/actions/Notification";
 
 const renderItem = ({item}) => {
     return (
-        <NotificationCard id={item.id} name={item.name} />
+        <NotificationCard id={item.sender_id} amount={item.amount} category={item.category} sender={`${item.sender_firstname} ${item.sender_lastname.substr(0,1)}`} receive={`${item.receive_firstname} ${item.receive_lastname.substr(0,1)}`} />
     )
 }
 
@@ -22,7 +22,6 @@ const Notification = (props) => {
 
     const fetchData = () => {
         dispatch(getNotificationData(Auth.data.accessToken));
-        console.log("hello world");
     }
 
     useFocusEffect(
@@ -35,7 +34,7 @@ const Notification = (props) => {
             return () => {
                 unmounted = true;
             }
-        },[data])
+        },[])
     )
     return (
         <View style={styles.container}>
