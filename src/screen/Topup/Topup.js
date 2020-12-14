@@ -1,16 +1,18 @@
-import React from "react";
-import { View, Text, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity } from "react-native";
+import React, { useRef } from "react";
+import { View, Text, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 import { Card, Title, Subheading, Portal, Modal, Button, Headline } from "react-native-paper";
 import IconMenu from "../../components/IconMenu";
 import { useSelector } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 import http from "../../http-common";
 import Icons from "react-native-vector-icons/MaterialCommunityIcons";
+import { formatCurrency } from "../../utils/currency";
 
 const Topup = (props) => {
     const [list,setList] = React.useState([]);
     const Auth = useSelector((s) => s.Auth);
     const [visible, setVisible] = React.useState(false);
+    const [amount, setAmount] = React.useState(0);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -51,21 +53,23 @@ const Topup = (props) => {
     const hideModal = () => setVisible(false);
 
     const chargeAmountData = [
-        { id: 1, amount: "10.000" },
-        { id: 1, amount: "20.000" },
-        { id: 1, amount: "30.000" },
-        { id: 1, amount: "60.000" },
-        { id: 1, amount: "100.000" },
-        { id: 1, amount: "200.000" }
+        { id: 1, amount: 10000 },
+        { id: 1, amount: 20000 },
+        { id: 1, amount: 30000 },
+        { id: 1, amount: 60000 },
+        { id: 1, amount: 100000 },
+        { id: 1, amount: 200000 }
     ]
 
     const renderChargeCard = ({item}) => {
         return (
-            <Card style={{flex: 1, flexDirection: "column", margin: 10}}>
-                <Card.Content>
-                    <Title style={{textAlign: "center"}}>{item.amount}</Title>
-                </Card.Content>
-            </Card>
+            <TouchableOpacity style={{flex: 1, flexDirection: "column", borderRadius: 5, margin: 10, borderStyle: "solid", borderWidth: 1, borderColor: "blue"}} onPress={() => setAmount(item.amount)}>
+                <Card style={{elevation: 0}}>
+                    <Card.Content>
+                        <Title style={{textAlign: "center", fontWeight: "bold"}}>{formatCurrency(item.amount)}</Title>
+                    </Card.Content>
+                </Card>
+            </TouchableOpacity>
         )
     }
 
@@ -109,7 +113,7 @@ const Topup = (props) => {
                 <View style={{padding: 10}}>
                     <Text style={{color: "rgba(58, 61, 66, 0.6)", fontSize: 14,  fontWeight: "bold"}}>Your Reload</Text>
                     <View style={{marginVertical: 10}}>
-                        <Title style={{fontSize: 26, fontWeight: "bold"}}>Rp.10.000</Title>
+                        <Title style={{fontSize: 26, fontWeight: "bold"}}>{`Rp.${formatCurrency(amount)}`}</Title>
                     </View>
                 </View>
                 <SafeAreaView style={{marginVertical: 10}}>  
