@@ -2,7 +2,8 @@ import "react-native-gesture-handler";
 import SplashScreen from "react-native-splash-screen";
 import React, { useEffect } from "react";
 import MainNavigator from "./src/navigator";
-import { Provider } from "react-redux";
+import { Provider as StoreProvider } from "react-redux";
+import { Provider as PaperProvider, DefaultTheme } from "react-native-paper";
 import { PersistGate } from  "redux-persist/integration/react";
 import configureStore from "./src/redux/store";
 import OneSignal from "react-native-onesignal";
@@ -41,12 +42,23 @@ const App = () => {
     console.log('Device info: ', device);
   }
 
+  const theme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      placeholder: "rgba(169, 169, 169, 0.8)",
+      text: "#3A3D42"
+    }
+  }
+
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-          <MainNavigator/>
-      </PersistGate>
-    </Provider>
+    <StoreProvider store={store}>
+      <PaperProvider theme={theme}>
+        <PersistGate loading={null} persistor={persistor}>
+            <MainNavigator/>
+        </PersistGate>
+      </PaperProvider>
+    </StoreProvider>
   )
 }
 
