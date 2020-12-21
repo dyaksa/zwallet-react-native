@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { View, Text, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
-import { Card, Title, Subheading, Portal, Modal, Button, Headline } from "react-native-paper";
+import { Card, Title, Subheading, Portal, Modal, Button } from "react-native-paper";
 import IconMenu from "../../components/IconMenu";
 import { useSelector, useDispatch } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
@@ -8,9 +8,11 @@ import http from "../../http-common";
 import Icons from "react-native-vector-icons/MaterialCommunityIcons";
 import { postPaymentTopup } from "../../redux/actions/Payment";
 import { formatCurrency } from "../../utils/currency";
+import _ from "lodash";
 
 const Topup = (props) => {
     const Auth = useSelector((s) => s.Auth);
+    const { data } = useSelector((s) => s.Payment);
     const dispatch = useDispatch();
     const [list,setList] = React.useState([]);
     const [visible, setVisible] = React.useState(false);
@@ -19,6 +21,7 @@ const Topup = (props) => {
     useFocusEffect(
         React.useCallback(() => {
             let unmounted = false;
+            setAmount(0);
             const fetchData = async () => {
                 try {
                     const topup = await http.get("/topup",{headers: {'x-access-token': Auth.data.accessToken}});
@@ -81,6 +84,11 @@ const Topup = (props) => {
         )
     }
 
+    const handleNext = () => {
+        setVisible(false);
+        props.navigation.navigate('Payment');
+    }
+
     return (
         <>
         <View style={Styles.container}>
@@ -133,7 +141,9 @@ const Topup = (props) => {
                     />
                 </SafeAreaView>
                 <View style={{marginVertical: 10}}>
-                    <Button mode="contained" style={{padding: 10, elevation: 0, backgroundColor: "#6379F4"}}>Confirm</Button>
+                    {(_.isEmpty(data)) 
+                    ? (<Button disabled={true} mode="contained" style={{padding: 10, elevation: 0, backgroundColor: "#DADADA"}}>Confirm</Button>) 
+                    : (<Button mode="contained" style={{padding: 10, elevation: 0, backgroundColor: "#6379F4"}} onPress={handleNext}>Confirm</Button>) }
                 </View>
             </Modal>
         </Portal>

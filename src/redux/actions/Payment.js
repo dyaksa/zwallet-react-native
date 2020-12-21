@@ -6,10 +6,10 @@ const requestPayment = () => {
     }
 }
 
-const requestPaymentTokenSuccess = (token) => {
+const requestPaymentTokenSuccess = (data) => {
     return {
         type: 'REQUEST_PAYMENT_SUCCESS',
-        paylod: token
+        payload: data
     }
 }
 
@@ -19,14 +19,19 @@ const requestPaymentTokenFail = () => {
     }
 }
 
+const setDefaultPayment = () => {
+    return {
+        type: 'SET_DEFAULT_PAYMENT'
+    }
+}
+
 const postPaymentTopup = (amount, userToken) => {
     return async (dispatch) => {
         try {
             dispatch(requestPayment())
             const data = {amount: amount};
             const result = await http.post("/charge",data,{headers: { "x-access-token": userToken}});
-            console.log(result.data.token);
-            dispatch(requestPaymentTokenSuccess(result.data.token));
+            dispatch(requestPaymentTokenSuccess(result.data));
         }catch(err) {
             dispatch(requestPaymentTokenFail());
             console.log(err.request);
@@ -35,5 +40,6 @@ const postPaymentTopup = (amount, userToken) => {
 }
 
 export {
-    postPaymentTopup
+    postPaymentTopup,
+    setDefaultPayment
 }

@@ -8,14 +8,15 @@ import { Drawer, Subheading, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { SetDefault } from "../redux/actions/Profile";
 import { setDefaultNotification } from "../redux/actions/Notification";
-import http from "../http-common";
+import { setDefaultPayment } from "../redux/actions/Payment";
 
 const DrawerNavigate = (props) => {
     const dispatch = useDispatch();
     
     const handleLogout = () => {
         dispatch(SetDefault());
-        dispatch(setDefaultNotification())
+        dispatch(setDefaultNotification());
+        dispatch(setDefaultPayment());
         dispatch(AuthUserLogout());
     }
     return (

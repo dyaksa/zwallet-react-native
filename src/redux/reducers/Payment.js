@@ -1,7 +1,7 @@
 const initialState = {
     loading: false,
     error: false,
-    token: null
+    data: []
 }
 
 const Payment = (state = initialState, action={}) => {
@@ -16,14 +16,25 @@ const Payment = (state = initialState, action={}) => {
                 ...state,
                 loading: false,
                 error: false,
-                token: action.payload
+                data: action.payload
             }
         case 'REQUEST_PAYMENT_FAILED':
             return {
                 ...state,
                 loading: false,
                 error: true,
-                token: null
+                data: []
+            }
+        case 'SET_DEFAULT_PAYMENT':
+            return {
+                ...state,
+                loading: false,
+                error: false,
+                data: [],
+                _persist: {
+                    rehydrated: true,
+                    version: -1
+                }
             }
         default: 
             return state;
