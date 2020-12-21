@@ -6,6 +6,7 @@ import { Transfers, Amount, Confirmation, Pin as TransferPin, Success } from "./
 import { Topup } from "./Topup";
 import { Profile, Password, Information, Pin, Phone } from "./Profile";
 import { Notification } from "./Notification";
+import { WebViewUI } from "./Payment/WebViewUI";
 
 
 const Drawer = createDrawerNavigator();
@@ -32,6 +33,7 @@ const Homes = (props) => {
             <Drawer.Screen name="Information" component={Information}/>
             <Drawer.Screen name="Pin" component={Pin}/>
             <Drawer.Screen name="Phone" component={Phone}/>
+            <Drawer.Screen name="Payment" component={WebViewUI}/>
         </Drawer.Navigator>
     )
 }

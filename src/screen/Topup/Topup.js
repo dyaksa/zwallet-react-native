@@ -2,15 +2,17 @@ import React, { useRef } from "react";
 import { View, Text, StyleSheet, Dimensions, FlatList, SafeAreaView, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 import { Card, Title, Subheading, Portal, Modal, Button, Headline } from "react-native-paper";
 import IconMenu from "../../components/IconMenu";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 import http from "../../http-common";
 import Icons from "react-native-vector-icons/MaterialCommunityIcons";
+import { postPaymentTopup } from "../../redux/actions/Payment";
 import { formatCurrency } from "../../utils/currency";
 
 const Topup = (props) => {
-    const [list,setList] = React.useState([]);
     const Auth = useSelector((s) => s.Auth);
+    const dispatch = useDispatch();
+    const [list,setList] = React.useState([]);
     const [visible, setVisible] = React.useState(false);
     const [amount, setAmount] = React.useState(0);
 
@@ -61,9 +63,15 @@ const Topup = (props) => {
         { id: 1, amount: 200000 }
     ]
 
+
     const renderChargeCard = ({item}) => {
+        const onHandleCharge = () => {
+            dispatch(postPaymentTopup(item.amount, Auth.data.accessToken));
+            setAmount(item.amount);
+        }
+
         return (
-            <TouchableOpacity style={{flex: 1, flexDirection: "column", borderRadius: 5, margin: 10, borderStyle: "solid", borderWidth: 1, borderColor: "blue"}} onPress={() => setAmount(item.amount)}>
+            <TouchableOpacity style={{flex: 1, flexDirection: "column", borderRadius: 5, margin: 10, borderStyle: "solid", borderWidth: 1, borderColor: "blue"}} onPress={onHandleCharge}>
                 <Card style={{elevation: 0}}>
                     <Card.Content>
                         <Title style={{textAlign: "center", fontWeight: "bold"}}>{formatCurrency(item.amount)}</Title>
