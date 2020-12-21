@@ -45,7 +45,7 @@ const Password = (props) => {
                 <Appbar.BackAction onPress={() => props.navigation.navigate("Profile")}/>
                 <Appbar.Content title="Change Password"></Appbar.Content>
             </Appbar.Header>
-            <View style={{padding: 15}}>
+            <View style={{padding: 15, height: Dimensions.get("screen").height}}>
                 <Subheading style={{color: "#7A7886"}}>You must enter your current password and then type your new password twice.</Subheading>
                 <View style={{marginVertical: 10}}>
                     <Controller
@@ -180,7 +180,7 @@ const Styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
         width: Dimensions.get("screen").width,
-        height: "100%"
+        height: Dimensions.get("screen").height
     },
 
     input: {

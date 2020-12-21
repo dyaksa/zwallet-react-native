@@ -5,6 +5,7 @@ import Forgot from "./Forgot";
 import Profile from "./Profile";
 import Transaction from "./Transaction";
 import Notification from "./Notification";
+import Payment from "./Payment";
 
 const reducers = combineReducers({
     Auth,
@@ -12,7 +13,8 @@ const reducers = combineReducers({
     Forgot,
     Profile,
     Transaction,
-    Notification
+    Notification,
+    Payment
 })
 
 export default reducers;
