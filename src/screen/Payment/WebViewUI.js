@@ -4,10 +4,13 @@ import { WebView } from "react-native-webview";
 import { useSelector, useDispatch } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 import { setDefaultPayment } from "../../redux/actions/Payment";
+import axios from "axios";
+import http from "../../http-common";
 
 const WebViewUI  = (props) => {
     const dispatch = useDispatch();
     const { data } = useSelector((s) => s.Payment);
+    const Auth = useSelector((s) => s.Auth);
     const [load,setLoad] = useState(false);
     const webviewRef = React.useRef(null);
 
@@ -20,11 +23,32 @@ const WebViewUI  = (props) => {
         },[load])
     )
 
-    const onBack = (data) => {
-        // dispatch(setDefaultPayment());
-        const { order_id } = JSON.parse(data.nativeEvent.data);
-        console.log(JSON.parse(data.nativeEvent.data));
-        props.navigation.navigate("Dashboard");
+    const onBack = async (data) => {
+        try{
+            dispatch(setDefaultPayment());
+            const { order_id } = JSON.parse(data.nativeEvent.data);
+            const status = await axios.get(`https://api.sandbox.midtrans.com/v2/${order_id}/status`,{headers:{'Authorization': 'Basic U0ItTWlkLXNlcnZlci1HU1FXVThfclp2VVNnZ0VLUm5NbFNZUS0='}});
+            if(status.data.transaction_status === "settlement"){
+                dispatch(setDefaultPayment());
+                const { gross_amount } = status.data;
+                const updated = await http.patch(`/charge/accepted?gross_amount=${gross_amount}`,{},{headers:{
+                    'x-access-token': Auth.data.accessToken
+                }});
+                if(updated.data.success){
+                    alert("Successfully topup");
+                    props.navigation.navigate("Dashboard");
+                }else{
+                    alert("Failed topup");
+                    props.navigation.navigate("Dashboard");
+                }
+            }else{
+                alert("Topup pending. please completed topup");
+                props.navigation.navigate("Dashboard");
+            }
+        }catch(err){
+            alert("Error Transaction");
+            props.navigation.navigate("Dashboard");
+        }
     }
 
     return (
