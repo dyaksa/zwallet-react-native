@@ -18,7 +18,7 @@ npm install
 
 ```javascript
 npx react-native run-android
-npm run
+npm start
 ```
 
 ## Technology
