@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { SafeAreaView, StyleSheet } from "react-native";
 import { WebView } from "react-native-webview";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
+import { setDefaultPayment } from "../../redux/actions/Payment";
 
 const WebViewUI  = (props) => {
+    const dispatch = useDispatch();
     const { data } = useSelector((s) => s.Payment);
     const [load,setLoad] = useState(false);
     const webviewRef = React.useRef(null);
@@ -18,33 +20,45 @@ const WebViewUI  = (props) => {
         },[load])
     )
 
-    const onBack = () => {
+    const onBack = (data) => {
+        // dispatch(setDefaultPayment());
+        const { order_id } = JSON.parse(data.nativeEvent.data);
+        console.log(JSON.parse(data.nativeEvent.data));
         props.navigation.navigate("Dashboard");
     }
-
-    const runFirst = `
-        window.addEventListener('DOMContentLoaded',() => {
-            document.body.style.backgroundColor = 'green';
-        })
-    `
 
     return (
         <SafeAreaView style={styles.flexContainer}>
             {(load) 
             ? (<WebView
+                    automaticallyAdjustContentInsets={false}
                     source={{
-                    html: `<body>
-                    <div>
-                        <button id='pay-button'>Pay Process</button>
-                    </div>
-                    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-aQToZK3m3UkYMgjX"></script> 
-                    <script type='text/javascript'>
-                        document.getElemen
-                    </script>
+                    html: `
+                    <head>
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <script type="text/javascript"
+                            src="https://app.sandbox.midtrans.com/snap/snap.js"
+                            data-client-key="SB-Mid-client-aQToZK3m3UkYMgjX"></script>
+                    </head>
+                    <body>
+                    <script type="text/javascript">
+                    window.onload = () => {
+                        snap.pay('${data.token}', {
+                            onSuccess: function(result){
+                                window.ReactNativeWebView.postMessage(JSON.stringify(result))
+                            },
+                            onPending: function(result){
+                                window.ReactNativeWebView.postMessage(JSON.stringify(result))
+                            },
+                            onError: function(result){
+                                window.ReactNativeWebView.postMessage(JSON.stringify(result))
+                            }
+                        });
+                    }
+                    </script> 
                     </body>`
                     }}
                     ref={webviewRef}
-                    injectedJavaScript={runFirst}
                     onMessage={onBack}
                 />) 
             : null}
